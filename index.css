@@ -1809,25 +1809,47 @@ footer {
     white-space: nowrap;
 }
 
-/* --- LIVE CHAT --- */
-.live-chat-fab {
+/* --- LIVE CHAT & WHATSAPP --- */
+.contact-fab-stack {
     position: fixed;
     bottom: 24px;
     right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 140;
+}
+
+.live-chat-fab,
+.whatsapp-fab {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--forest-green);
-    color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgba(30,58,47,0.3);
-    z-index: 140;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
+
+.live-chat-fab {
+    background: var(--forest-green);
+    color: var(--white);
+}
+
+.whatsapp-fab {
+    background: #25d366;
+    color: var(--white);
+    transition: var(--transition-quick);
+}
+
+.whatsapp-fab:hover {
+    background: #1ebe57;
+    color: var(--white);
+}
+
 .live-chat-panel {
     position: fixed;
-    bottom: 90px;
+    bottom: 164px;
     right: 24px;
     width: 340px;
     max-width: calc(100vw - 32px);
@@ -1914,6 +1936,27 @@ footer {
     border-radius: var(--radius-sm);
     font-size: 13px;
     font-weight: 600;
+}
+
+.live-chat-whatsapp-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 12px 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(37, 211, 102, 0.12);
+    border: 1px solid rgba(37, 211, 102, 0.35);
+    color: #128c7e;
+    font-size: 13px;
+    font-weight: 600;
+    transition: var(--transition-quick);
+}
+
+.live-chat-whatsapp-link:hover {
+    background: rgba(37, 211, 102, 0.2);
+    color: #0d6e63;
 }
 
 /* --- ABOUT US --- */
@@ -2279,10 +2322,13 @@ footer {
 
     .live-chat-panel {
         right: 12px;
-        bottom: 80px;
+        bottom: 148px;
         height: 60vh;
     }
-    .live-chat-fab { bottom: 16px; right: 16px; }
+    .contact-fab-stack {
+        bottom: 16px;
+        right: 16px;
+    }
 
     .notification-banner {
         left: 16px;
@@ -2517,6 +2563,6 @@ footer {
 .workout-action-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 
 @media print {
-    header, footer, .cart-slider, .live-chat-fab, .live-chat-panel, .notification-banner, .announcement-bar { display: none !important; }
+    header, footer, .cart-slider, .contact-fab-stack, .live-chat-panel, .notification-banner, .announcement-bar { display: none !important; }
     main { padding: 0; }
 }

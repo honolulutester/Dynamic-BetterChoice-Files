@@ -16,6 +16,20 @@ import {
 
 const ORDER_STATUSES = ["Confirmed", "Packed", "Out for Delivery", "Delivered"];
 const TRACKING_LOOKUP_KEY = "eco_track_lookup";
+const WHATSAPP_PHONE = "8801778522749";
+
+function getWhatsAppUrl(message = "") {
+    const base = `https://wa.me/${WHATSAPP_PHONE}`;
+    const text = message.trim() || t("whatsappDefaultMessage");
+    return `${base}?text=${encodeURIComponent(text)}`;
+}
+
+function updateWhatsAppLinks(message = "") {
+    const url = getWhatsAppUrl(message);
+    document.getElementById("whatsapp-fab")?.setAttribute("href", url);
+    document.getElementById("live-chat-whatsapp")?.setAttribute("href", url);
+    document.getElementById("footer-whatsapp-link")?.setAttribute("href", url);
+}
 const APP_PAGES = new Set([
     "shop", "traceability", "workout", "meals", "experts", "editorial",
     "dashboard", "login", "register", "track", "about", "policies", "checkout"
@@ -561,6 +575,7 @@ function setupGlobalListeners() {
     document.getElementById("lang-toggle")?.addEventListener("click", () => {
         setLang(getLang() === "en" ? "bn" : "en");
         document.getElementById("lang-toggle").textContent = getLang() === "en" ? "EN" : "বাং";
+        updateWhatsAppLinks(document.getElementById("live-chat-input")?.value || "");
         applyShellI18n();
         renderPage(state.activePage);
     });
@@ -603,6 +618,7 @@ function setupGlobalListeners() {
     });
 
     setupLiveChat();
+    setupWhatsApp();
     updateHeaderAccount();
 }
 
@@ -665,6 +681,23 @@ function setupLiveChat() {
     });
 
     renderChat();
+}
+
+function setupWhatsApp() {
+    updateWhatsAppLinks();
+
+    document.getElementById("live-chat-whatsapp")?.addEventListener("click", (e) => {
+        const draft = document.getElementById("live-chat-input")?.value.trim();
+        if (draft) {
+            e.preventDefault();
+            window.open(getWhatsAppUrl(draft), "_blank", "noopener,noreferrer");
+        }
+    });
+
+    document.getElementById("footer-whatsapp-link")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.open(getWhatsAppUrl(), "_blank", "noopener,noreferrer");
+    });
 }
 
 function getChatAutoReply(text) {
