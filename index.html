@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterChoice | Make the better, healthier choice</title>
+    <meta name="description" content="BetterChoice - Sleek, zero-plastic premium marketplace for health-conscious professionals in Bangladesh. 100% Organic, BPA-Free, amber glass packaging, and local agricultural sourcing.">
+    <meta property="og:title" content="BetterChoice | Zero-Plastic Premium Health Marketplace">
+    <meta property="og:description" content="Certified organic proteins, supplements & sustainable goods delivered in amber glass across Dhaka.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1e3a2f">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./index.css?v=4">
+</head>
+<body>
+
+    <div id="app-shell">
+        <div class="announcement-bar">
+            Return Amber Bottles/Tiffins on delivery — Eco-Credits (৳25/unit) issued to your wallet after inspection
+        </div>
+
+        <header>
+            <div class="header-container">
+                <a href="#shop" class="logo" onclick="window.location.hash='#shop';">
+                    BetterChoice
+                    <span>Make the better, healthier choice</span>
+                </a>
+
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+
+                <nav class="nav-menu" id="nav-menu">
+                    <a href="#shop" class="nav-link active" data-page="shop">Shop</a>
+                    <a href="#workout" class="nav-link" data-page="workout">Workout Planner</a>
+                    <a href="#meals" class="nav-link" data-page="meals">Meal Architect</a>
+                    <a href="#experts" class="nav-link" data-page="experts">Wellness Experts</a>
+                    <a href="#editorial" class="nav-link" data-page="editorial">Editorial Hub</a>
+                    <a href="#track" class="nav-link" data-page="track">Track Order</a>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="lang-toggle-btn" id="lang-toggle" title="Switch language">EN</button>
+                    <a href="#dashboard" class="header-account-btn" id="header-account-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span id="header-account-label">Sign In</span>
+                    </a>
+                    <a href="#dashboard" class="eco-wallet-badge" id="header-eco-wallet">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
+                        0 Eco-Credits
+                    </a>
+                    <button class="cart-icon-btn" id="cart-toggle" aria-label="Open Shopping Tote">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+                        <span class="cart-badge" id="cart-badge-count" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content"></main>
+
+        <footer>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>BetterChoice</h3>
+                    <p>Redefining urban health and sustainability in Bangladesh. Make the better, healthier choice by eliminating synthetic plastic entirely from the retail supply chain.</p>
+                    <div class="newsletter-box">
+                        <h4>Exclusive Offers Newsletter</h4>
+                        <p>Get early access to small-batch drops and member-only discounts.</p>
+                        <form id="newsletter-form" class="newsletter-form">
+                            <input type="email" id="newsletter-email" class="form-control" placeholder="your@email.com" required>
+                            <button type="submit" class="submit-btn newsletter-btn">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Material Standards</h4>
+                    <ul>
+                        <li><a href="#shop">100% Certified Organic</a></li>
+                        <li><a href="#shop">BPA-Free Raw Glass</a></li>
+                        <li><a href="#shop">Banana Fiber Wrappings</a></li>
+                        <li><a href="#shop">Zero Plastics Guaranteed</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Service Hub</h4>
+                    <ul>
+                        <li><a href="#workout">Workout Splitting</a></li>
+                        <li><a href="#meals">Macro-Calorie Menus</a></li>
+                        <li><a href="#experts">Certified Dieticians</a></li>
+                        <li><a href="#dashboard">My Account</a></li>
+                        <li><a href="#track">Track My Order</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#policies">Customer Policies</a></li>
+                        <li><a href="#editorial">Editorial Hub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Direct Support</h4>
+                    <ul>
+                        <li><a href="#dashboard">Gulshan Priority Desk</a></li>
+                        <li><a href="#dashboard">Banani Logistics</a></li>
+                        <li><a href="#dashboard">Dhanmondi Express</a></li>
+                        <li><a href="#" id="footer-chat-link">Live Chat Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 BetterChoice. All rights reserved. Made in alignment with Bengal Conservation guidelines.</span>
+                <span>BSTI Accredited Partners</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div class="cart-slider" id="cart-slider">
+        <div class="cart-header">
+            <h3>Shopping Tote</h3>
+            <button class="close-cart-btn" id="close-cart" aria-label="Close Shopping Tote">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        
+        <div class="cart-items-container" id="cart-items-list"></div>
+
+        <div class="cart-footer">
+            <div class="cart-footer-summary" id="cart-footer-summary">
+                <span id="cart-item-count">0 items</span>
+                <span id="cart-drawer-subtotal">৳0</span>
+            </div>
+            <button class="checkout-btn" id="drawer-proceed-btn" disabled>Proceed to Order</button>
+        </div>
+    </div>
+
+    <!-- BKASH MODAL -->
+    <div class="modal-overlay" id="bkash-modal-overlay">
+        <div class="modal-content" style="max-width: 380px;">
+            <div class="bkash-header">
+                <div class="bkash-logo-placeholder">bKash</div>
+                <div class="bkash-sub">Merchant Payment Gateway</div>
+                <span class="bkash-close" id="bkash-close-btn">&times;</span>
+            </div>
+            <div class="bkash-merchant-info">
+                <span>Merchant Wallet: <strong id="bkash-merchant-num">01778522749</strong></span>
+                <span>Amount: <strong id="bkash-merchant-amount">৳0</strong></span>
+            </div>
+            <div class="bkash-body" id="bkash-modal-body"></div>
+            <div class="bkash-footer">
+                Dial *247# or open bKash app to verify your account
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE CHAT -->
+    <button class="live-chat-fab" id="live-chat-fab" aria-label="Open live chat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="live-chat-panel" id="live-chat-panel">
+        <div class="live-chat-header">
+            <div>
+                <strong>BetterChoice Support</strong>
+                <span>Typically replies in minutes</span>
+            </div>
+            <button id="live-chat-close" aria-label="Close chat">&times;</button>
+        </div>
+        <div class="live-chat-messages" id="live-chat-messages"></div>
+        <form class="live-chat-input-row" id="live-chat-form">
+            <input type="text" id="live-chat-input" placeholder="Type your message..." autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <div class="notification-banner" id="notification-banner">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+        <span class="notification-msg">Item added to cart!</span>
+    </div>
+
+    <script type="module" src="./app.js?v=4"></script>
+</body>
+</html>
