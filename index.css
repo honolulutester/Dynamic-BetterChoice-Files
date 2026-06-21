@@ -123,10 +123,11 @@ header {
 .header-container {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 20px 40px;
+    padding: 16px clamp(20px, 3vw, 40px);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
 }
 
 .logo {
@@ -135,29 +136,38 @@ header {
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--forest-green);
+    flex-shrink: 0;
 }
 .logo span {
     font-family: var(--font-body);
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.12em;
     color: var(--sand);
     display: block;
     margin-top: -4px;
+    white-space: nowrap;
 }
 
 .nav-menu {
     display: flex;
-    gap: 30px;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: clamp(14px, 1.6vw, 24px);
+    min-width: 0;
 }
 
 .nav-link {
-    font-size: 14px;
+    font-size: clamp(11px, 0.9vw, 13px);
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.03em;
     padding: 8px 0;
     position: relative;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .nav-link::after {
     content: '';
@@ -181,20 +191,22 @@ header {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .header-account-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--charcoal);
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 30px;
     border: 1px solid var(--border-color);
     background: var(--white);
+    white-space: nowrap;
 }
 
 .mobile-menu-btn {
@@ -206,14 +218,15 @@ header {
 .eco-wallet-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background-color: rgba(30, 58, 47, 0.05);
     border: 1px solid rgba(30, 58, 47, 0.1);
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 30px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--forest-green);
+    white-space: nowrap;
 }
 .eco-wallet-badge svg {
     color: var(--gold);
