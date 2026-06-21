@@ -50,7 +50,11 @@ function dbOrderToApp(row) {
         walletApplied: Number(row.wallet_applied || 0),
         name: row.recipient_name,
         phone: row.phone,
+        division: row.division || "",
+        district: row.district || "",
         area: row.area,
+        addressLine: row.address_line || row.address || "",
+        landmark: row.landmark || "",
         address: row.address,
         guest: row.is_guest
     };
@@ -73,7 +77,11 @@ function appOrderToDb(order, userId) {
         wallet_applied: order.walletApplied || 0,
         recipient_name: order.name,
         phone: order.phone,
+        division: order.division || "",
+        district: order.district || "",
         area: order.area,
+        address_line: order.addressLine || order.address || "",
+        landmark: order.landmark || "",
         address: order.address,
         is_guest: Boolean(order.guest)
     };
@@ -85,8 +93,13 @@ function profileRowToUser(profile, orders, wishlist, returnRequests) {
         name: profile.name,
         email: profile.email,
         phone: profile.phone || "",
+        division: profile.division || "Dhaka",
+        district: profile.district || "Dhaka",
         area: profile.area || "Gulshan",
+        addressLine: profile.address_line || profile.address || "",
+        landmark: profile.landmark || "",
         address: profile.address || "",
+        birthdate: profile.birthdate || "",
         wallet: Number(profile.wallet || 0),
         lifetimeCredits: Number(profile.lifetime_credits || 0),
         cart: profile.cart || [],
@@ -159,16 +172,27 @@ export async function loadUserFromSupabase(userId) {
     );
 }
 
-export async function supabaseRegister({ name, email, phone, password, address, area }) {
+export async function supabaseRegister({ name, email, phone, password, division, district, area, addressLine, landmark, address, birthdate }) {
     const sb = getSupabase();
     if (!sb) return { ok: false, message: "Supabase is not configured." };
 
     const normalizedEmail = email.trim().toLowerCase();
+    const fullAddress = address || [addressLine, landmark, area, district, division].filter(Boolean).join(", ");
     const { data, error } = await sb.auth.signUp({
         email: normalizedEmail,
         password,
         options: {
-            data: { name: name.trim(), phone, address, area },
+            data: {
+                name: name.trim(),
+                phone,
+                division,
+                district,
+                area,
+                address_line: addressLine,
+                landmark,
+                address: fullAddress,
+                birthdate: birthdate || ""
+            },
             emailRedirectTo: getAuthRedirectUrl()
         }
     });
@@ -181,8 +205,13 @@ export async function supabaseRegister({ name, email, phone, password, address, 
         email: normalizedEmail,
         name: name.trim(),
         phone: phone.trim(),
-        address: address.trim(),
-        area: area || "Gulshan"
+        division: division || "Dhaka",
+        district: district || "Dhaka",
+        area: area || "Gulshan",
+        address_line: addressLine?.trim() || "",
+        landmark: landmark?.trim() || "",
+        address: fullAddress,
+        birthdate: birthdate || null
     });
 
     if (profileError && data.session) return { ok: false, message: profileError.message };
@@ -260,8 +289,13 @@ export async function persistProfileToSupabase(userId, snapshot) {
     await sb.from("profiles").update({
         name: snapshot.name,
         phone: snapshot.phone,
+        division: snapshot.division,
+        district: snapshot.district,
         area: snapshot.area,
+        address_line: snapshot.addressLine,
+        landmark: snapshot.landmark,
         address: snapshot.address,
+        birthdate: snapshot.birthdate || null,
         wallet: snapshot.wallet,
         lifetime_credits: snapshot.lifetimeCredits,
         cart: snapshot.cart,

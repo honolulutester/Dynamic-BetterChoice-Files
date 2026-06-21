@@ -1,5 +1,10 @@
 import { DEFAULT_PRODUCTS, ARTICLES, EXPERTS, fetchGoogleSheetCatalog, DEFAULT_SHEET_URL, COMPANY_PROFILE, CUSTOMER_POLICIES, getOrderUnit } from './data.js';
 import { MERCHANT_PIN, CATALOG_CACHE_VERSION, MEAL_INGREDIENT_KEYS, WORKOUT_SHOP_MATCHERS, COUPONS } from './config.js';
+import { appendOrderToGoogleSheet, appendUserToGoogleSheet, isOrdersSheetEnabled, isUsersSheetEnabled } from './orders-sheet.js';
+import {
+    renderLocationFieldsHtml, bindLocationFields, readLocationFields,
+    formatFullAddress, locationFromLegacy
+} from './location-fields.js';
 import { t, setLang, getLang, applyShellI18n, bindI18nState, orderStatusLabel, subcategoryLabel, SHOP_CATEGORY_CHIPS } from './i18n.js';
 import {
     getCheckoutTotals, buildOrderLineItems, getProductTraceUrl, parseProductIdFromUrl,
@@ -124,6 +129,16 @@ window.addEventListener("DOMContentLoaded", async () => {
         console.info("BetterChoice: Supabase not configured. Copy supabase-config.example.js → supabase-config.js and run supabase/schema.sql in your project.");
     }
 
+    if (!isOrdersSheetEnabled() && !sessionStorage.getItem("bc_sheets_hint")) {
+        sessionStorage.setItem("bc_sheets_hint", "1");
+        console.info("BetterChoice: Order logging to Google Sheets is off. Deploy google-apps-script/orders-webhook.gs and set sheets-config.js.");
+    }
+
+    if (!isUsersSheetEnabled() && !sessionStorage.getItem("bc_users_sheets_hint")) {
+        sessionStorage.setItem("bc_users_sheets_hint", "1");
+        console.info("BetterChoice: Customer sync to Google Sheets is off. Deploy google-apps-script/users-webhook.gs and set USERS_SHEET_WEBHOOK_URL.");
+    }
+
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
@@ -191,8 +206,13 @@ function syncStateToUser() {
         name: state.currentUser.name,
         email: state.currentUser.email,
         phone: state.currentUser.phone || "",
-        address: state.currentUser.address || "",
+        division: state.currentUser.division || "Dhaka",
+        district: state.currentUser.district || "Dhaka",
         area: state.currentUser.area || "Gulshan",
+        addressLine: state.currentUser.addressLine || state.currentUser.address || "",
+        landmark: state.currentUser.landmark || "",
+        address: state.currentUser.address || "",
+        birthdate: state.currentUser.birthdate || "",
         subscribed: state.currentUser.subscribed || false
     };
     state.currentUser = state.users[idx];
@@ -295,8 +315,13 @@ function saveState() {
             persistProfileToSupabase(state.currentUser.id, {
                 name: state.currentUser.name,
                 phone: state.currentUser.phone,
+                division: state.currentUser.division,
+                district: state.currentUser.district,
                 area: state.currentUser.area,
+                addressLine: state.currentUser.addressLine,
+                landmark: state.currentUser.landmark,
                 address: state.currentUser.address,
+                birthdate: state.currentUser.birthdate,
                 wallet: state.wallet,
                 lifetimeCredits: state.lifetimeCredits,
                 cart: state.cart,
@@ -320,16 +345,29 @@ function saveState() {
     }
 }
 
-async function registerUser({ name, email, phone, password, address, area }) {
+async function registerUser({ name, email, phone, password, division, district, area, addressLine, landmark, birthdate }) {
+    const fullAddress = formatFullAddress({ division, district, area, addressLine, landmark });
     if (isSupabaseEnabled()) {
-        const result = await supabaseRegister({ name, email, phone, password, address, area });
+        const result = await supabaseRegister({
+            name, email, phone, password, division, district, area, addressLine, landmark,
+            address: fullAddress, birthdate
+        });
         if (!result.ok) return { ok: false, message: result.message };
         if (result.needsEmailConfirm) {
+            await appendUserToGoogleSheet({
+                id: "pending-confirm",
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                phone: phone.trim(),
+                division, district, area, addressLine, landmark, birthdate,
+                wallet: 0, lifetimeCredits: 0, subscribed: false
+            }, "register_pending");
             return { ok: true, needsEmailConfirm: true, message: result.message };
         }
         state.currentUser = result.user;
         syncUserToState(result.user);
         saveState();
+        await appendUserToGoogleSheet(result.user, "register");
         return { ok: true };
     }
 
@@ -343,8 +381,13 @@ async function registerUser({ name, email, phone, password, address, area }) {
         email: normalizedEmail,
         phone: phone.trim(),
         password: btoa(password),
-        address: address.trim(),
+        division: division || "Dhaka",
+        district: district || "Dhaka",
         area: area || "Gulshan",
+        addressLine: addressLine?.trim() || "",
+        landmark: landmark?.trim() || "",
+        address: fullAddress,
+        birthdate: birthdate || "",
         wallet: 0,
         lifetimeCredits: 0,
         orders: [],
@@ -361,6 +404,7 @@ async function registerUser({ name, email, phone, password, address, area }) {
     state.currentUser = user;
     syncUserToState(user);
     saveState();
+    await appendUserToGoogleSheet(user, "register");
     return { ok: true };
 }
 
@@ -468,11 +512,16 @@ async function issueEcoCredits(email, amount) {
 }
 
 function getDeliveryDetailsFromCart() {
+    const loc = readLocationFields("delivery");
     return {
         name: document.getElementById("delivery-name")?.value.trim() || "",
         phone: document.getElementById("delivery-phone")?.value.trim() || "",
-        area: document.getElementById("delivery-area")?.value || "",
-        address: document.getElementById("delivery-address")?.value.trim() || "",
+        division: loc.division,
+        district: loc.district,
+        area: loc.area,
+        addressLine: loc.addressLine,
+        landmark: loc.landmark,
+        address: formatFullAddress(loc),
         slot: document.getElementById("delivery-slot")?.value || ""
     };
 }
@@ -480,17 +529,19 @@ function getDeliveryDetailsFromCart() {
 function prefillDeliveryForm() {
     const u = state.currentUser;
     if (!u) return;
+    const loc = locationFromLegacy(u);
     const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
     set("delivery-name", u.name);
     set("delivery-phone", u.phone);
-    set("delivery-area", u.area);
-    set("delivery-address", u.address);
+    set("delivery-address-line", loc.addressLine);
+    set("delivery-landmark", loc.landmark);
 }
 
 function validateDeliveryDetails(details) {
     if (!details.name) return "Please enter the recipient name.";
     if (!/^01\d{9}$/.test(details.phone)) return "Please enter a valid 11-digit mobile number.";
-    if (!details.address || details.address.length < 10) return "Please enter a complete delivery address.";
+    if (!details.division || !details.district || !details.area) return "Please select division, district, and area.";
+    if (!details.addressLine || details.addressLine.length < 5) return "Please enter house, road, or block details.";
     return null;
 }
 
@@ -890,39 +941,35 @@ function renderLoginView(container) {
 
 function renderRegisterView(container) {
     container.innerHTML = `
-        <div class="auth-card">
+        <div class="auth-card auth-card-wide">
             <h2>Create Account</h2>
             <p>Join BetterChoice for order tracking, wallet credits, and exclusive offers.</p>
             <form id="register-form">
                 <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" class="form-control" required></div>
                 <div class="form-group"><label>Email</label><input type="email" id="reg-email" class="form-control" required></div>
                 <div class="form-group"><label>Mobile</label><input type="tel" id="reg-phone" class="form-control" placeholder="01XXXXXXXXX" maxlength="11" required></div>
-                <div class="form-group"><label>Default Delivery Zone</label>
-                    <select id="reg-area" class="form-control">
-                        <option value="Gulshan">Gulshan</option>
-                        <option value="Banani">Banani</option>
-                        <option value="Dhanmondi">Dhanmondi</option>
-                        <option value="Other Dhaka">Other Dhaka</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Default Address</label><textarea id="reg-address" class="form-control" rows="2" required></textarea></div>
+                <div class="form-group"><label>Date of Birth</label><input type="date" id="reg-birthdate" class="form-control" required max="${new Date().toISOString().slice(0, 10)}"></div>
+                <h4 class="form-section-title">Default delivery location</h4>
+                ${renderLocationFieldsHtml("reg")}
                 <div class="form-group"><label>Password</label><input type="password" id="reg-password" class="form-control" minlength="6" required></div>
                 <button type="submit" class="submit-btn">Create Account</button>
             </form>
             <p class="auth-switch">Already have an account? <a href="#login" id="go-login">Sign in</a></p>
         </div>
     `;
+    bindLocationFields("reg");
     document.getElementById("register-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const phone = document.getElementById("reg-phone").value.trim();
         if (!/^01\d{9}$/.test(phone)) { alert("Enter a valid 11-digit mobile number."); return; }
+        const loc = readLocationFields("reg");
         const result = await registerUser({
             name: document.getElementById("reg-name").value,
             email: document.getElementById("reg-email").value,
             phone,
             password: document.getElementById("reg-password").value,
-            address: document.getElementById("reg-address").value,
-            area: document.getElementById("reg-area").value
+            birthdate: document.getElementById("reg-birthdate").value,
+            ...loc
         });
         if (!result.ok) { alert(result.message); return; }
         if (result.needsEmailConfirm) {
@@ -980,7 +1027,8 @@ function renderTrackView(container) {
             <div class="track-result-card">
                 <h3>Order ${order.id}</h3>
                 <p><strong>Placed:</strong> ${order.date} &nbsp;|&nbsp; <strong>Payment:</strong> ${order.paymentMethod || "bKash"}</p>
-                <p><strong>Deliver to:</strong> ${order.address}, ${order.area}</p>
+                <p><strong>Deliver to:</strong> ${order.address || formatFullAddress(order)}</p>
+                <p><strong>Location:</strong> ${[order.division, order.district, order.area].filter(Boolean).join(" · ")}</p>
                 ${renderOrderTracker(order.status || "Confirmed", order.trackingCode || order.id)}
             </div>
         `;
@@ -2130,12 +2178,9 @@ function renderDashboardView(container) {
                     <div class="form-group"><label>Full Name</label><input type="text" id="prof-name" class="form-control" value="${u.name}" required></div>
                     <div class="form-group"><label>Email</label><input type="email" class="form-control" value="${u.email}" disabled></div>
                     <div class="form-group"><label>Mobile</label><input type="tel" id="prof-phone" class="form-control" value="${u.phone}" maxlength="11" required></div>
-                    <div class="form-group"><label>Delivery Zone</label>
-                        <select id="prof-area" class="form-control">
-                            ${["Gulshan","Banani","Dhanmondi","Other Dhaka"].map(a => `<option value="${a}" ${u.area===a?"selected":""}>${a}</option>`).join("")}
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Default Address</label><textarea id="prof-address" class="form-control" rows="2" required>${u.address || ""}</textarea></div>
+                    <div class="form-group"><label>Date of Birth</label><input type="date" id="prof-birthdate" class="form-control" value="${u.birthdate || ""}" max="${new Date().toISOString().slice(0, 10)}"></div>
+                    <h4 class="form-section-title">Delivery location</h4>
+                    ${renderLocationFieldsHtml("prof", u)}
                     <button type="submit" class="submit-btn">Save Profile</button>
                 </form>
 
@@ -2153,15 +2198,23 @@ function renderDashboardView(container) {
                     <p style="font-size:13px; color:#555; margin-top:8px;">Credits are issued manually after we receive and inspect your returned packaging. Redeem your balance automatically at checkout.</p>
                 </div>
             `;
-            document.getElementById("profile-form").addEventListener("submit", (e) => {
+            bindLocationFields("prof", u);
+            document.getElementById("profile-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
+                const loc = readLocationFields("prof");
                 u.name = document.getElementById("prof-name").value.trim();
                 u.phone = document.getElementById("prof-phone").value.trim();
-                u.area = document.getElementById("prof-area").value;
-                u.address = document.getElementById("prof-address").value.trim();
+                u.birthdate = document.getElementById("prof-birthdate").value;
+                u.division = loc.division;
+                u.district = loc.district;
+                u.area = loc.area;
+                u.addressLine = loc.addressLine;
+                u.landmark = loc.landmark;
+                u.address = formatFullAddress(loc);
                 syncStateToUser();
                 saveState();
                 updateHeaderAccount();
+                await appendUserToGoogleSheet(u, "profile_update");
                 showNotification("Profile updated!");
             });
         } else if (tabName === "orders") {
@@ -2334,7 +2387,8 @@ function renderDashboardView(container) {
                     <button type="submit" class="submit-btn">Advance to Next Status</button>
                 </form>
 
-                <h3 style="font-family:var(--font-heading); font-size:20px; margin-bottom:15px;">Google Sheets Catalog</h3>
+                <h3 style="font-family:var(--font-heading); font-size:20px; margin-bottom:15px;">Google Sheets</h3>
+                <p style="font-size:13px; color:#666; margin-bottom:16px;">Sync catalog from a sheet. Log orders to an <strong>Orders</strong> tab (<code>orders-webhook.gs</code>) and customers to a <strong>Customers</strong> tab (<code>users-webhook.gs</code>) via <code>sheets-config.js</code>.</p>
                 <div style="background-color:var(--sand-light); padding:20px; border-radius:var(--radius-md); font-size:13px; margin-bottom:25px; border-left: 4px solid var(--gold);">
                     <code style="display:block; background:#fff; padding:8px; border-radius:4px; margin:8px 0; font-family:monospace; overflow-x:auto;">
                         id, name, category, subcategory, price, saleprice, inventory, organic, bpafree, packaging, origin, labcert, calories, carbs, protein, fat, servingsize, unit, description, photos
@@ -2649,19 +2703,8 @@ function renderCheckoutForm(container) {
                         <label for="delivery-phone">Mobile Number</label>
                         <input type="tel" id="delivery-phone" class="form-control" placeholder="01XXXXXXXXX" maxlength="11">
                     </div>
-                    <div class="form-group">
-                        <label for="delivery-area">Delivery Zone</label>
-                        <select id="delivery-area" class="form-control">
-                            <option value="Gulshan">Gulshan</option>
-                            <option value="Banani">Banani</option>
-                            <option value="Dhanmondi">Dhanmondi</option>
-                            <option value="Other Dhaka">Other Dhaka</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="delivery-address">Full Delivery Address</label>
-                        <textarea id="delivery-address" class="form-control" rows="3" placeholder="House/road, block, landmark..."></textarea>
-                    </div>
+                    <h4 class="form-section-title">Delivery location</h4>
+                    ${renderLocationFieldsHtml("delivery", state.currentUser || {})}
                     <div class="form-group">
                         <label for="delivery-slot">Delivery Time Slot</label>
                         <select id="delivery-slot" class="form-control">
@@ -2692,6 +2735,7 @@ function renderCheckoutForm(container) {
         </div>
     `;
 
+    bindLocationFields("delivery", locationFromLegacy(state.currentUser || {}));
     prefillDeliveryForm();
 
     document.getElementById("apply-coupon-btn").addEventListener("click", () => {
@@ -2860,8 +2904,12 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
         walletApplied: storeDeduction,
         name: details.name,
         phone: details.phone,
+        division: details.division || "",
+        district: details.district || "",
         area: details.area,
-        address: details.address,
+        addressLine: details.addressLine || "",
+        landmark: details.landmark || "",
+        address: details.address || formatFullAddress(details),
         guest: !state.currentUser
     };
 
@@ -2872,7 +2920,11 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
     if (state.currentUser) {
         state.currentUser.name = details.name;
         state.currentUser.phone = details.phone;
+        state.currentUser.division = details.division;
+        state.currentUser.district = details.district;
         state.currentUser.area = details.area;
+        state.currentUser.addressLine = details.addressLine;
+        state.currentUser.landmark = details.landmark;
         state.currentUser.address = details.address;
     }
 
@@ -2881,6 +2933,13 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
         if (!saveResult.ok) {
             console.warn("Cloud order save failed:", saveResult.message);
         }
+    }
+
+    const sheetResult = await appendOrderToGoogleSheet(newOrder, {
+        email: state.currentUser?.email || ""
+    });
+    if (!sheetResult.ok && !sheetResult.skipped) {
+        console.warn("Google Sheets order log failed:", sheetResult.message);
     }
 
     state.cart = [];
@@ -2902,7 +2961,8 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
             <div class="order-success-details">
                 <div><strong>Order Reference:</strong> <span>${orderId}</span></div>
                 <div><strong>Tracking ID:</strong> <span>${trackingCode}</span></div>
-                <div><strong>Delivery Address:</strong> <span>${details.address}, ${details.area}</span></div>
+                <div><strong>Delivery Address:</strong> <span>${details.address}</span></div>
+                <div><strong>Division / District / Area:</strong> <span>${details.division}, ${details.district}, ${details.area}</span></div>
                 <div><strong>Time Slot:</strong> <span>${newOrder.slot}</span></div>
                 <div><strong>Payment:</strong> <span>${newOrder.paymentMethod}</span></div>
                 ${storeDeduction > 0 ? `<div><strong>Wallet Applied:</strong> <span>-৳${storeDeduction}</span></div>` : ""}

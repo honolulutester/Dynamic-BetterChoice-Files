@@ -7,8 +7,13 @@ create table if not exists public.profiles (
     email text not null,
     name text not null default '',
     phone text default '',
+    division text default 'Dhaka',
+    district text default 'Dhaka',
     area text default 'Gulshan',
+    address_line text default '',
+    landmark text default '',
     address text default '',
+    birthdate date,
     wallet numeric not null default 0,
     lifetime_credits numeric not null default 0,
     cart jsonb not null default '[]'::jsonb,
@@ -37,7 +42,11 @@ create table if not exists public.orders (
     wallet_applied numeric not null default 0,
     recipient_name text not null,
     phone text not null,
+    division text not null default '',
+    district text not null default '',
     area text not null,
+    address_line text not null default '',
+    landmark text default '',
     address text not null,
     is_guest boolean not null default false,
     created_at timestamptz not null default now()
@@ -198,14 +207,19 @@ security definer
 set search_path = public
 as $$
 begin
-    insert into public.profiles (id, email, name, phone, area, address)
+    insert into public.profiles (id, email, name, phone, division, district, area, address_line, landmark, address, birthdate)
     values (
         new.id,
         coalesce(new.email, ''),
         coalesce(new.raw_user_meta_data->>'name', ''),
         coalesce(new.raw_user_meta_data->>'phone', ''),
+        coalesce(new.raw_user_meta_data->>'division', 'Dhaka'),
+        coalesce(new.raw_user_meta_data->>'district', 'Dhaka'),
         coalesce(new.raw_user_meta_data->>'area', 'Gulshan'),
-        coalesce(new.raw_user_meta_data->>'address', '')
+        coalesce(new.raw_user_meta_data->>'address_line', coalesce(new.raw_user_meta_data->>'address', '')),
+        coalesce(new.raw_user_meta_data->>'landmark', ''),
+        coalesce(new.raw_user_meta_data->>'address', ''),
+        nullif(new.raw_user_meta_data->>'birthdate', '')::date
     )
     on conflict (id) do nothing;
     return new;

@@ -1609,6 +1609,30 @@ footer {
 .auth-switch { text-align: center; margin-top: 20px; font-size: 14px; }
 .auth-switch a { color: var(--forest-green); font-weight: 600; }
 
+.auth-card-wide { max-width: 640px; }
+
+.form-section-title {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    color: var(--forest-green);
+    margin: 20px 0 12px;
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.location-grid .form-group-full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .location-grid { grid-template-columns: 1fr; }
+}
+
 /* --- ORDER TRACKING --- */
 .track-lookup-card {
     max-width: 640px;
