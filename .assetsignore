@@ -1,0 +1,5 @@
+.git
+.github
+node_modules
+serve.ps1
+supabase/
