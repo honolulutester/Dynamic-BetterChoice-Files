@@ -97,12 +97,17 @@ img {
 .announcement-bar {
     background-color: var(--forest-green);
     color: var(--ivory);
+    padding: 10px clamp(20px, 4vw, 48px);
+}
+
+.announcement-bar-inner {
+    max-width: min(960px, 100%);
+    margin: 0 auto;
     text-align: center;
-    padding: 8px 16px;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 14px;
+    line-height: 1.55;
     font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 header {
@@ -2278,9 +2283,11 @@ footer {
         padding: 16px;
     }
     .announcement-bar {
-        font-size: 10px;
-        padding: 6px 10px;
-        letter-spacing: 0.05em;
+        padding: 8px 12px;
+    }
+    .announcement-bar-inner {
+        font-size: 11px;
+        line-height: 1.45;
     }
     .hero-banner {
         padding: 32px 20px;

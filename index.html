@@ -10,13 +10,15 @@
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#1e3a2f">
     <link rel="manifest" href="./manifest.json">
-    <link rel="stylesheet" href="./index.css?v=4">
+    <link rel="stylesheet" href="./index.css?v=5">
 </head>
 <body>
 
     <div id="app-shell">
         <div class="announcement-bar">
-            Return Amber Bottles/Tiffins on delivery — Eco-Credits (৳25/unit) issued to your wallet after inspection
+            <p class="announcement-bar-inner" data-i18n="announcement">
+                Return amber bottles &amp; tiffins on delivery — ৳25 Eco-Credits per unit added to your wallet after inspection
+            </p>
         </div>
 
         <header>
@@ -40,7 +42,7 @@
                 </nav>
 
                 <div class="header-actions">
-                    <button class="lang-toggle-btn" id="lang-toggle" title="Switch language">EN</button>
+                    <button class="lang-toggle-btn" id="lang-toggle" data-i18n-title="switchLang" title="Switch language">EN</button>
                     <a href="#dashboard" class="header-account-btn" id="header-account-btn">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         <span id="header-account-label">Sign In</span>
@@ -63,56 +65,56 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <h3>BetterChoice</h3>
-                    <p>Redefining urban health and sustainability in Bangladesh. Make the better, healthier choice by eliminating synthetic plastic entirely from the retail supply chain.</p>
+                    <p data-i18n="footerBrandDesc">Redefining urban health and sustainability in Bangladesh. Make the better, healthier choice by eliminating synthetic plastic entirely from the retail supply chain.</p>
                     <div class="newsletter-box">
-                        <h4>Exclusive Offers Newsletter</h4>
-                        <p>Get early access to small-batch drops and member-only discounts.</p>
+                        <h4 data-i18n="footerNewsletterTitle">Exclusive Offers Newsletter</h4>
+                        <p data-i18n="footerNewsletterDesc">Get early access to small-batch drops and member-only discounts.</p>
                         <form id="newsletter-form" class="newsletter-form">
                             <input type="email" id="newsletter-email" class="form-control" placeholder="your@email.com" required>
-                            <button type="submit" class="submit-btn newsletter-btn">Subscribe</button>
+                            <button type="submit" class="submit-btn newsletter-btn" data-i18n="footerSubscribe">Subscribe</button>
                         </form>
                     </div>
                 </div>
                 <div class="footer-col">
-                    <h4>Material Standards</h4>
+                    <h4 data-i18n="footerMaterialStandards">Material Standards</h4>
                     <ul>
-                        <li><a href="#shop">100% Certified Organic</a></li>
-                        <li><a href="#shop">BPA-Free Raw Glass</a></li>
-                        <li><a href="#shop">Banana Fiber Wrappings</a></li>
-                        <li><a href="#shop">Zero Plastics Guaranteed</a></li>
+                        <li><a href="#shop" data-i18n="footerOrganic">100% Certified Organic</a></li>
+                        <li><a href="#shop" data-i18n="footerBpaFree">BPA-Free Raw Glass</a></li>
+                        <li><a href="#shop" data-i18n="footerBananaFiber">Banana Fiber Wrappings</a></li>
+                        <li><a href="#shop" data-i18n="footerZeroPlastic">Zero Plastics Guaranteed</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Service Hub</h4>
+                    <h4 data-i18n="footerServiceHub">Service Hub</h4>
                     <ul>
-                        <li><a href="#workout">Workout Splitting</a></li>
-                        <li><a href="#meals">Macro-Calorie Menus</a></li>
-                        <li><a href="#experts">Certified Dieticians</a></li>
-                        <li><a href="#dashboard">My Account</a></li>
-                        <li><a href="#track">Track My Order</a></li>
+                        <li><a href="#workout" data-i18n="footerWorkoutSplitting">Workout Splitting</a></li>
+                        <li><a href="#meals" data-i18n="footerMacroMenus">Macro-Calorie Menus</a></li>
+                        <li><a href="#experts" data-i18n="footerDieticians">Certified Dieticians</a></li>
+                        <li><a href="#dashboard" data-i18n="footerMyAccount">My Account</a></li>
+                        <li><a href="#track" data-i18n="footerTrackOrder">Track My Order</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Company</h4>
+                    <h4 data-i18n="footerCompany">Company</h4>
                     <ul>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#policies">Customer Policies</a></li>
-                        <li><a href="#editorial">Editorial Hub</a></li>
+                        <li><a href="#about" data-i18n="footerAbout">About Us</a></li>
+                        <li><a href="#policies" data-i18n="footerPolicies">Customer Policies</a></li>
+                        <li><a href="#editorial" data-i18n="editorial">Editorial Hub</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Direct Support</h4>
+                    <h4 data-i18n="footerDirectSupport">Direct Support</h4>
                     <ul>
-                        <li><a href="#dashboard">Gulshan Priority Desk</a></li>
-                        <li><a href="#dashboard">Banani Logistics</a></li>
-                        <li><a href="#dashboard">Dhanmondi Express</a></li>
-                        <li><a href="#" id="footer-chat-link">Live Chat Support</a></li>
+                        <li><a href="#dashboard" data-i18n="footerGulshan">Gulshan Priority Desk</a></li>
+                        <li><a href="#dashboard" data-i18n="footerBanani">Banani Logistics</a></li>
+                        <li><a href="#dashboard" data-i18n="footerDhanmondi">Dhanmondi Express</a></li>
+                        <li><a href="#" id="footer-chat-link" data-i18n="footerLiveChat">Live Chat Support</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>© 2026 BetterChoice. All rights reserved. Made in alignment with Bengal Conservation guidelines.</span>
-                <span>BSTI Accredited Partners</span>
+                <span data-i18n="footerCopyright">© 2026 BetterChoice. All rights reserved. Made in alignment with Bengal Conservation guidelines.</span>
+                <span data-i18n="footerBsti">BSTI Accredited Partners</span>
             </div>
         </footer>
     </div>
@@ -163,23 +165,23 @@
     <div class="live-chat-panel" id="live-chat-panel">
         <div class="live-chat-header">
             <div>
-                <strong>BetterChoice Support</strong>
-                <span>Typically replies in minutes</span>
+                <strong data-i18n="chatSupportTitle">BetterChoice Support</strong>
+                <span data-i18n="chatSupportSubtitle">Typically replies in minutes</span>
             </div>
             <button id="live-chat-close" aria-label="Close chat">&times;</button>
         </div>
         <div class="live-chat-messages" id="live-chat-messages"></div>
         <form class="live-chat-input-row" id="live-chat-form">
-            <input type="text" id="live-chat-input" placeholder="Type your message..." autocomplete="off">
-            <button type="submit">Send</button>
+            <input type="text" id="live-chat-input" data-i18n-placeholder="chatPlaceholder" placeholder="Type your message..." autocomplete="off">
+            <button type="submit" data-i18n="chatSend">Send</button>
         </form>
     </div>
 
     <div class="notification-banner" id="notification-banner">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
-        <span class="notification-msg">Item added to cart!</span>
+        <span class="notification-msg" data-i18n="itemAddedToCart">Item added to cart!</span>
     </div>
 
-    <script type="module" src="./app.js?v=4"></script>
+    <script type="module" src="./app.js?v=5"></script>
 </body>
 </html>

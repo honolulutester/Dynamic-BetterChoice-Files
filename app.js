@@ -1,6 +1,6 @@
 import { DEFAULT_PRODUCTS, ARTICLES, EXPERTS, fetchGoogleSheetCatalog, DEFAULT_SHEET_URL, COMPANY_PROFILE, CUSTOMER_POLICIES, getOrderUnit } from './data.js';
 import { MERCHANT_PIN, CATALOG_CACHE_VERSION, MEAL_INGREDIENT_KEYS, WORKOUT_SHOP_MATCHERS, COUPONS } from './config.js';
-import { t, setLang, getLang, applyShellI18n, bindI18nState } from './i18n.js';
+import { t, setLang, getLang, applyShellI18n, bindI18nState, orderStatusLabel } from './i18n.js';
 import {
     getCheckoutTotals, buildOrderLineItems, getProductTraceUrl, parseProductIdFromUrl,
     drawQRToCanvas, findMealProducts, getActivePrice, applyCoupon
@@ -487,11 +487,11 @@ function renderOrderTracker(status, trackingCode) {
             ${ORDER_STATUSES.map((step, i) => `
                 <div class="tracking-step ${i <= idx ? "done" : ""} ${i === idx ? "active" : ""}">
                     <div class="tracking-dot"></div>
-                    <div class="tracking-label">${step}</div>
+                    <div class="tracking-label">${orderStatusLabel(step)}</div>
                 </div>
             `).join("")}
         </div>
-        <p class="tracking-code">Tracking ID: <strong>${trackingCode}</strong></p>
+        <p class="tracking-code">${t("trackingId")}: <strong>${trackingCode}</strong></p>
     `;
 }
 
@@ -609,7 +609,7 @@ function setupGlobalListeners() {
 function updateHeaderAccount() {
     const label = document.getElementById("header-account-label");
     if (label) {
-        label.textContent = state.currentUser ? state.currentUser.name.split(" ")[0] : "Sign In";
+        label.textContent = state.currentUser ? state.currentUser.name.split(" ")[0] : t("signIn");
     }
 }
 
@@ -729,7 +729,7 @@ function syncCartUI() {
     const walletBadge = document.getElementById("header-eco-wallet");
     walletBadge.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
-        ${state.wallet} Eco-Credits
+        ${state.wallet} ${t("ecoCreditsLabel")}
     `;
 }
 
@@ -791,6 +791,7 @@ function renderPage(page) {
     }
     syncCartUI();
     updateHeaderAccount();
+    applyShellI18n();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -911,14 +912,14 @@ function renderTrackView(container) {
     container.innerHTML = `
         <div class="page-header">
             <div class="page-title">
-                <h2>Track Your Order</h2>
-                <p>Enter your order ID to see real-time delivery status</p>
+                <h2>${t("trackTitle")}</h2>
+                <p>${t("trackSubtitle")}</p>
             </div>
         </div>
         <div class="track-lookup-card">
             <form id="track-form" class="track-form">
-                <input type="text" id="track-order-id" class="form-control" placeholder="e.g. OD-123456" value="${lookup}" required>
-                <button type="submit" class="submit-btn">Track Order</button>
+                <input type="text" id="track-order-id" class="form-control" placeholder="${t("trackPlaceholder")}" value="${lookup}" required>
+                <button type="submit" class="submit-btn">${t("trackButton")}</button>
             </form>
             <div id="track-result"></div>
         </div>
@@ -939,7 +940,7 @@ function renderTrackView(container) {
         }
 
         if (!order) {
-            result.innerHTML = `<p class="track-error">No order found with ID <strong>${orderId}</strong>. Check your confirmation email or account dashboard.</p>`;
+            result.innerHTML = `<p class="track-error">${t("trackNotFound", { id: orderId })}</p>`;
             return;
         }
         result.innerHTML = `
