@@ -1,6 +1,6 @@
 import { DEFAULT_PRODUCTS, ARTICLES, EXPERTS, fetchGoogleSheetCatalog, DEFAULT_SHEET_URL, COMPANY_PROFILE, CUSTOMER_POLICIES, getOrderUnit } from './data.js';
 import { MERCHANT_PIN, CATALOG_CACHE_VERSION, MEAL_INGREDIENT_KEYS, WORKOUT_SHOP_MATCHERS, COUPONS } from './config.js';
-import { t, setLang, getLang, applyShellI18n, bindI18nState, orderStatusLabel } from './i18n.js';
+import { t, setLang, getLang, applyShellI18n, bindI18nState, orderStatusLabel, subcategoryLabel, SHOP_CATEGORY_CHIPS } from './i18n.js';
 import {
     getCheckoutTotals, buildOrderLineItems, getProductTraceUrl, parseProductIdFromUrl,
     drawQRToCanvas, findMealProducts, getActivePrice, applyCoupon
@@ -1091,41 +1091,39 @@ function renderPoliciesView(container) {
 
 // --- SHOP VIEW ---
 function renderShopView(container) {
+    const categoryChips = SHOP_CATEGORY_CHIPS.map((c, i) =>
+        `<button class="filter-chip ${i === 0 ? "active" : ""}" data-category="${c.value}">${t(c.labelKey)}</button>`
+    ).join("");
+
     container.innerHTML = `
         <div class="hero-banner">
             <div class="hero-content">
-                <span class="hero-tag">Zero-Plastic Delivery</span>
-                <h1>Pure Nutrition. Sustainable Luxury.</h1>
-                <p>100% certified organic, hormone-free ingredients delivered exclusively in heavy UV-blocking amber glass and handwoven jute-canvas totes.</p>
-                <a href="#shop" class="hero-cta" id="hero-browse-btn">Explore Catalog</a>
+                <span class="hero-tag">${t("heroTag")}</span>
+                <h1>${t("heroTitle")}</h1>
+                <p>${t("heroDesc")}</p>
+                <a href="#shop" class="hero-cta" id="hero-browse-btn">${t("heroBrowse")}</a>
             </div>
         </div>
 
         <div class="page-header">
             <div class="page-title">
-                <h2>Product Catalog</h2>
-                <p>Zero-plastic & fully certifiable fresh protein, staples, and hardware</p>
+                <h2>${t("catalogTitle")}</h2>
+                <p>${t("catalogSubtitle")}</p>
             </div>
             <div class="shop-toolbar">
-                <input type="text" id="catalog-search" class="form-control" placeholder="Search products...">
+                <input type="text" id="catalog-search" class="form-control" placeholder="${t("searchProducts")}">
                 <select id="catalog-sort" class="form-control">
-                    <option value="default">Sort: Default</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="name">Name A–Z</option>
+                    <option value="default">${t("sortDefault")}</option>
+                    <option value="price-asc">${t("sortPriceAsc")}</option>
+                    <option value="price-desc">${t("sortPriceDesc")}</option>
+                    <option value="name">${t("sortName")}</option>
                 </select>
             </div>
         </div>
 
         <div class="filter-container">
             <div class="filter-row" id="category-filters">
-                <button class="filter-chip active" data-category="All">All Categories</button>
-                <button class="filter-chip" data-category="Premium Pasture & Sustainable Proteins">Proteins</button>
-                <button class="filter-chip" data-category="Pure Micro-Nutritional Supplements">Supplements</button>
-                <button class="filter-chip" data-category="Conscious Foods & Native Grains">Grains & Foods</button>
-                <button class="filter-chip" data-category="Sustainable Functional Beverages">Beverages</button>
-                <button class="filter-chip" data-category="Culinary Hardware & Wood Artifacts">Culinary Hardware</button>
-                <button class="filter-chip" data-category="Premium Glass & Home Organization">Premium Glass</button>
+                ${categoryChips}
             </div>
             <div class="filter-row" id="subcategory-filters"></div>
         </div>
@@ -1152,8 +1150,8 @@ function renderShopView(container) {
                 .map(p => p.subcategory)
                 .filter(Boolean)
         )].sort();
-        subcatRow.innerHTML = `<button class="filter-chip ${activeSubcat === "All" ? "active" : ""}" data-subcat="All">All Types</button>` +
-            subs.map(s => `<button class="filter-chip ${activeSubcat === s ? "active" : ""}" data-subcat="${s}">${s}</button>`).join("");
+        subcatRow.innerHTML = `<button class="filter-chip ${activeSubcat === "All" ? "active" : ""}" data-subcat="All">${t("allTypes")}</button>` +
+            subs.map(s => `<button class="filter-chip ${activeSubcat === s ? "active" : ""}" data-subcat="${s}">${subcategoryLabel(s)}</button>`).join("");
         subcatRow.querySelectorAll(".filter-chip").forEach(chip => {
             chip.addEventListener("click", (e) => {
                 activeSubcat = e.target.getAttribute("data-subcat");
@@ -1181,7 +1179,7 @@ function renderShopView(container) {
         else if (sort === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
 
         if (filtered.length === 0) {
-            productGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:#666;">No products found matching your search.</div>`;
+            productGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:#666;">${t("noProductsFound")}</div>`;
             return;
         }
 
@@ -1191,16 +1189,16 @@ function renderShopView(container) {
             
             let stockBadge = "";
             let disableBtn = "";
-            let btnText = "Add";
+            let btnText = t("add");
             
             if (p.inventory === 0) {
-                stockBadge = `<span class="badge" style="background-color:#E2136E; color:#fff;">Out of Stock</span>`;
+                stockBadge = `<span class="badge" style="background-color:#E2136E; color:#fff;">${t("outOfStock")}</span>`;
                 disableBtn = "disabled style='background-color:#bbb; cursor:not-allowed;'";
-                btnText = "Sold Out";
+                btnText = t("soldOut");
             } else if (p.inventory <= 5) {
-                stockBadge = `<span class="badge" style="background-color:var(--gold); color:#121212;">Only ${p.inventory} Left</span>`;
+                stockBadge = `<span class="badge" style="background-color:var(--gold); color:#121212;">${t("onlyLeft", { n: p.inventory })}</span>`;
             } else {
-                stockBadge = `<span class="badge" style="background-color:#fff; color:#555; border:1px solid #ddd;">Stock: ${p.inventory}</span>`;
+                stockBadge = `<span class="badge" style="background-color:#fff; color:#555; border:1px solid #ddd;">${t("stockLabel", { n: p.inventory })}</span>`;
             }
 
             const isWishlisted = state.wishlist.includes(p.id);
@@ -1210,9 +1208,9 @@ function renderShopView(container) {
                     <div class="product-image-container">
                         ${renderProductImage(p)}
                         <div class="product-badges">
-                            ${p.organic ? `<span class="badge badge-organic">100% Organic</span>` : ""}
-                            ${p.bpafree ? `<span class="badge badge-plastic-free">Zero Plastic</span>` : ""}
-                            ${isDiscounted ? `<span class="badge" style="background-color:#E2136E; color:#fff;">SALE</span>` : ""}
+                            ${p.organic ? `<span class="badge badge-organic">${t("badgeOrganic")}</span>` : ""}
+                            ${p.bpafree ? `<span class="badge badge-plastic-free">${t("badgeZeroPlastic")}</span>` : ""}
+                            ${isDiscounted ? `<span class="badge" style="background-color:#E2136E; color:#fff;">${t("sale")}</span>` : ""}
                             ${stockBadge}
                         </div>
                         <button type="button" class="wishlist-btn ${isWishlisted ? "active" : ""}" data-id="${p.id}" aria-label="Add to wishlist" title="Save to wishlist">
@@ -1220,9 +1218,9 @@ function renderShopView(container) {
                         </button>
                     </div>
                     <div class="product-info">
-                        <span class="product-category">${p.subcategory}</span>
+                        <span class="product-category">${subcategoryLabel(p.subcategory)}</span>
                         <h3 class="product-name">${p.name}</h3>
-                        <div class="product-order-unit">Per order: <strong>${getOrderUnit(p)}</strong></div>
+                        <div class="product-order-unit">${t("perOrder")} <strong>${getOrderUnit(p)}</strong></div>
                         <div class="product-packaging">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                             <span>${p.packaging}</span>
