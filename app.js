@@ -36,7 +36,7 @@ function updateWhatsAppLinks(message = "") {
     document.getElementById("footer-whatsapp-link")?.setAttribute("href", url);
 }
 const APP_PAGES = new Set([
-    "shop", "traceability", "workout", "meals", "experts", "editorial",
+    "shop", "leaderboard", "traceability", "workout", "meals", "experts", "editorial",
     "dashboard", "login", "register", "track", "about", "policies", "checkout"
 ]);
 
@@ -868,6 +868,9 @@ function renderPage(page) {
         case "shop":
             renderShopView(content);
             break;
+        case "leaderboard":
+            renderLeaderboardView(content);
+            break;
         case "traceability":
             renderTraceabilityView(content);
             break;
@@ -1515,6 +1518,214 @@ function renderShopView(container) {
     });
     renderSubcategoryFilters();
     filterAndRender();
+}
+
+// --- LEADERBOARD & BADGES VIEW ---
+function renderLeaderboardView(container) {
+    const LEADERBOARD_SEED = [
+        { name: "Kazi M.", credits: 620, plastic: 1240 },
+        { name: "Farhana A.", credits: 490, plastic: 980 },
+        { name: "Tahmid S.", credits: 400, plastic: 800 },
+        { name: "Nusrat J.", credits: 325, plastic: 650 },
+        { name: "Ziaur R.", credits: 260, plastic: 520 },
+        { name: "Imran H.", credits: 220, plastic: 440 },
+        { name: "Sultana N.", credits: 175, plastic: 350 },
+    ];
+
+    // 1. Calculate active user statistics
+    const returnsList = state.currentUser ? (state.returnRequests || []) : [];
+    const totalReturnedQty = returnsList.reduce((sum, r) => sum + r.qty, 0);
+    const ordersList = state.currentUser ? (state.orders || []) : [];
+    const totalOrdersCount = ordersList.length;
+    const userPlasticSaved = (totalReturnedQty * 50) + (totalOrdersCount * 20);
+    const userCredits = state.currentUser ? (state.lifetimeCredits || 0) : 0;
+
+    // 2. Build leaderboard list
+    const leaderboardList = [...LEADERBOARD_SEED];
+    if (state.currentUser) {
+        leaderboardList.push({
+            name: `${state.currentUser.name} (${t("you")})`,
+            credits: userCredits,
+            plastic: userPlasticSaved,
+            isCurrentUser: true
+        });
+    }
+    leaderboardList.sort((a, b) => b.credits - a.credits);
+
+    // 3. Evaluate active user achievements
+    const badges = [
+        {
+            id: "zero-plastic-pioneer",
+            title: t("zeroPlasticPioneerTitle"),
+            desc: t("zeroPlasticPioneerDesc"),
+            unlocked: state.currentUser && userCredits >= 100,
+            metricLabel: t("ecoCreditsLabel"),
+            current: userCredits,
+            required: 100,
+            themeColor: "#1e3a2f", // Green
+            iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon-svg" style="color: #2e7d32;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`
+        },
+        {
+            id: "amber-advocate",
+            title: t("amberAdvocateTitle"),
+            desc: t("amberAdvocateDesc"),
+            unlocked: state.currentUser && totalReturnedQty >= 5,
+            metricLabel: "Returned",
+            current: totalReturnedQty,
+            required: 5,
+            themeColor: "#b27a12", // Amber/Gold
+            iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon-svg" style="color: #d84315;"><path d="M12 22a7 7 0 007-7c0-2-1-3.9-3-5.5s-4-2.5-4-5.5c0 3-2 3.9-4 5.5S6 13 6 15a7 7 0 007 7z"/></svg>`
+        },
+        {
+            id: "monsoon-warrior",
+            title: t("monsoonWarriorTitle"),
+            desc: t("monsoonWarriorDesc"),
+            unlocked: state.currentUser && !!state.savedWorkouts,
+            metricLabel: "Saved Split",
+            current: state.currentUser && state.savedWorkouts ? 1 : 0,
+            required: 1,
+            themeColor: "#1b365d", // Deep Indigo
+            iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon-svg" style="color: #1565c0;"><path d="M18.4 12c.4-.3.6-.7.6-1.2 0-.8-.7-1.5-1.5-1.5-.2 0-.4 0-.6.1C16.4 7.2 14.4 6 12 6c-2.9 0-5.3 2-5.9 4.8C6.1 10.8 6 10.9 6 11c-.5 0-1 .4-1 1 0 .6.4 1 1 1 .2 0 .4-.1.6-.2C7.3 15.6 9.5 17 12 17c3.1 0 5.6-2.1 6.4-5zM13 18l-2 3h2l-1 2"/></svg>`
+        },
+        {
+            id: "organic-epicure",
+            title: t("organicEpicureTitle"),
+            desc: t("organicEpicureDesc"),
+            unlocked: state.currentUser && ordersList.some(o => o.lineItems?.some(li => {
+                const p = state.products.find(prod => prod.name === li.name || prod.id === li.id);
+                return p && (p.organic || p.category.includes("Protein") || p.category.includes("Grains"));
+            })),
+            metricLabel: "Organic Items",
+            current: state.currentUser && ordersList.some(o => o.lineItems?.some(li => {
+                const p = state.products.find(prod => prod.name === li.name || prod.id === li.id);
+                return p && (p.organic || p.category.includes("Protein") || p.category.includes("Grains"));
+            })) ? 1 : 0,
+            required: 1,
+            themeColor: "#2a5435", // Sage
+            iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon-svg" style="color: #2e7d32;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v8M9 11l3 3 3-3"/></svg>`
+        },
+        {
+            id: "wellness-disciple",
+            title: t("wellnessDiscipleTitle"),
+            desc: t("wellnessDiscipleDesc"),
+            unlocked: state.currentUser && state.bookings && state.bookings.length > 0,
+            metricLabel: "Bookings",
+            current: state.currentUser && state.bookings ? state.bookings.length : 0,
+            required: 1,
+            themeColor: "#6d1b3b", // Rose Gold
+            iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon-svg" style="color: #c2185b;"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>`
+        }
+    ];
+
+    // 4. Render HTML Structure
+    container.innerHTML = `
+        <div class="page-header">
+            <div class="page-title">
+                <h2>${t("ecoLeaderboardTitle")}</h2>
+                <p>${t("ecoLeaderboardSubtitle")}</p>
+            </div>
+        </div>
+
+        <div class="leaderboard-layout">
+            <!-- LEFT PANEL: LEADERBOARD TABLE -->
+            <div class="leaderboard-panel">
+                <div class="leaderboard-title-row">
+                    <h3>Dhaka Eco Champions</h3>
+                    <p>Track zero-plastic rankings in real-time. Leaderboard ranks by total Eco-Credits.</p>
+                </div>
+
+                ${!state.currentUser ? `
+                    <div class="eco-guest-notice">
+                        <p>${t("guestLeaderboardNotice")}</p>
+                        <div class="eco-guest-notice-actions">
+                            <a href="#login" class="auth-link login-link">${t("signIn")}</a>
+                            <a href="#register" class="auth-link register-link">Sign Up</a>
+                        </div>
+                    </div>
+                ` : ""}
+
+                <div class="eco-table-wrapper">
+                    <table class="eco-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">${t("championsTableRank")}</th>
+                                <th>${t("championsTableName")}</th>
+                                <th style="text-align: right;">${t("championsTableImpact")}</th>
+                                <th style="text-align: right;">${t("championsTableCredits")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${leaderboardList.map((player, idx) => {
+                                const rank = idx + 1;
+                                return `
+                                    <tr class="${player.isCurrentUser ? 'user-row' : ''}">
+                                        <td>
+                                            <span class="rank-badge">${rank}</span>
+                                        </td>
+                                        <td>
+                                            ${player.name}
+                                            ${player.isCurrentUser ? `<span class="user-highlight-badge">${t("you")}</span>` : ""}
+                                        </td>
+                                        <td style="text-align: right; font-weight: 500;">
+                                            ${player.plastic.toLocaleString()}g
+                                        </td>
+                                        <td style="text-align: right; font-weight: 600; color: var(--forest-green);">
+                                            ৳${player.credits.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: MILESTONE BADGES -->
+            <div class="badges-panel">
+                <div class="leaderboard-title-row">
+                    <h3>${t("badgesTitle")}</h3>
+                    <p>${t("badgesSubtitle")}</p>
+                </div>
+
+                <div class="badges-container-grid">
+                    ${badges.map(b => {
+                        const progressPercent = Math.min((b.current / b.required) * 100, 100);
+                        return `
+                            <div class="badge-card ${b.unlocked ? 'unlocked' : 'locked'}">
+                                ${!b.unlocked ? `
+                                    <div class="lock-overlay-icon" title="${t("locked")}">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    </div>
+                                ` : ""}
+                                <div class="badge-icon-wrapper" style="color: ${b.themeColor};">
+                                    ${b.iconSvg}
+                                </div>
+                                <div class="badge-info">
+                                    <h4>
+                                        ${b.title}
+                                        <span class="badge-status-tag ${b.unlocked ? 'unlocked-tag' : 'locked-tag'}">
+                                            ${b.unlocked ? t("unlocked") : t("locked")}
+                                        </span>
+                                    </h4>
+                                    <p>${b.desc}</p>
+                                    
+                                    <div class="badge-progress-container">
+                                        <div class="badge-progress-info">
+                                            <span>Progress</span>
+                                            <span>${b.current} / ${b.required} ${b.metricLabel}</span>
+                                        </div>
+                                        <div class="badge-progress-bar-bg">
+                                            <div class="badge-progress-bar-fill" style="width: ${progressPercent}%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // --- PRODUCT TRACEABILITY VIEW (QR Target) ---
