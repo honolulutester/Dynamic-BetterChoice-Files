@@ -97,7 +97,10 @@ const STRINGS = {
         perOrder: "Per order:",
         badgeOrganic: "100% Organic",
         badgeZeroPlastic: "Zero Plastic",
-        sale: "SALE"
+        sale: "SALE",
+        showingProducts: "Showing {start}–{end} of {total} products",
+        prevPage: "Previous Page",
+        nextPage: "Next Page"
     },
     bn: {
         shop: "শপ",
@@ -197,7 +200,10 @@ const STRINGS = {
         perOrder: "প্রতি অর্ডার:",
         badgeOrganic: "১০০% অর্গানিক",
         badgeZeroPlastic: "শূন্য প্লাস্টিক",
-        sale: "ছাড়"
+        sale: "ছাড়",
+        showingProducts: "মোট {total}টি পণ্যের মধ্যে {start}–{end}টি দেখানো হচ্ছে",
+        prevPage: "পূর্ববর্তী",
+        nextPage: "পরবর্তী"
     }
 };
 

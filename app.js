@@ -1244,6 +1244,7 @@ function renderShopView(container) {
         </div>
 
         <div class="product-grid" id="shop-product-grid"></div>
+        <div class="pagination-container" id="shop-pagination"></div>
     `;
 
     document.getElementById("hero-browse-btn").addEventListener("click", (e) => {
@@ -1257,6 +1258,8 @@ function renderShopView(container) {
     const subcatRow = document.getElementById("subcategory-filters");
     let activeCat = "All";
     let activeSubcat = "All";
+    let currentPage = 1;
+    const itemsPerPage = 16;
 
     const renderSubcategoryFilters = () => {
         const subs = [...new Set(
@@ -1272,6 +1275,7 @@ function renderShopView(container) {
                 activeSubcat = e.target.getAttribute("data-subcat");
                 subcatRow.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
                 e.target.classList.add("active");
+                currentPage = 1;
                 filterAndRender();
             });
         });
@@ -1293,12 +1297,22 @@ function renderShopView(container) {
         else if (sort === "price-desc") filtered.sort((a, b) => getActivePrice(b) - getActivePrice(a));
         else if (sort === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
 
+        const paginationGrid = document.getElementById("shop-pagination");
+
         if (filtered.length === 0) {
             productGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:#666;">${t("noProductsFound")}</div>`;
+            if (paginationGrid) paginationGrid.innerHTML = "";
             return;
         }
 
-        productGrid.innerHTML = filtered.map(p => {
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+        productGrid.innerHTML = paginated.map(p => {
             const isDiscounted = p.salePrice > 0 && p.salePrice < p.price;
             const displayPrice = isDiscounted ? p.salePrice : p.price;
             
@@ -1387,6 +1401,7 @@ function renderShopView(container) {
                 addToCart(id);
             });
         });
+
         productGrid.querySelectorAll(".wishlist-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -1397,7 +1412,86 @@ function renderShopView(container) {
             });
         });
 
+        // Render pagination controls
+        if (paginationGrid) {
+            if (totalPages <= 1) {
+                paginationGrid.innerHTML = "";
+            } else {
+                const startItem = startIndex + 1;
+                const endItem = Math.min(startIndex + itemsPerPage, filtered.length);
+                const infoText = t("showingProducts", { start: startItem, end: endItem, total: filtered.length });
+                
+                const prevDisabled = currentPage === 1 ? "disabled" : "";
+                const nextDisabled = currentPage === totalPages ? "disabled" : "";
+                
+                let pagesHtml = "";
+                if (totalPages <= 5) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        pagesHtml += `<button class="pagination-number ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                    }
+                } else {
+                    if (currentPage > 2) {
+                        pagesHtml += `<button class="pagination-number" data-page="1">1</button>`;
+                        if (currentPage > 3) pagesHtml += `<span class="pagination-ellipsis">...</span>`;
+                    }
+                    
+                    const start = Math.max(1, currentPage - 1);
+                    const end = Math.min(totalPages, currentPage + 1);
+                    for (let i = start; i <= end; i++) {
+                        if (i === 1 && currentPage > 2) continue;
+                        if (i === totalPages && currentPage < totalPages - 1) continue;
+                        pagesHtml += `<button class="pagination-number ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                    }
+                    
+                    if (currentPage < totalPages - 1) {
+                        if (currentPage < totalPages - 2) pagesHtml += `<span class="pagination-ellipsis">...</span>`;
+                        pagesHtml += `<button class="pagination-number" data-page="${totalPages}">${totalPages}</button>`;
+                    }
+                }
+
+                paginationGrid.innerHTML = `
+                    <span class="pagination-info">${infoText}</span>
+                    <div class="pagination">
+                        <button class="pagination-btn prev-btn" ${prevDisabled} aria-label="${t("prevPage")}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        ${pagesHtml}
+                        <button class="pagination-btn next-btn" ${nextDisabled} aria-label="${t("nextPage")}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                `;
+
+                paginationGrid.querySelector(".prev-btn").addEventListener("click", () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        filterAndRender();
+                        document.querySelector(".page-header").scrollIntoView({ behavior: "smooth" });
+                    }
+                });
+
+                paginationGrid.querySelector(".next-btn").addEventListener("click", () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        filterAndRender();
+                        document.querySelector(".page-header").scrollIntoView({ behavior: "smooth" });
+                    }
+                });
+
+                paginationGrid.querySelectorAll(".pagination-number").forEach(numBtn => {
+                    numBtn.addEventListener("click", (e) => {
+                        const targetPage = parseInt(e.currentTarget.getAttribute("data-page"), 10);
+                        if (targetPage && targetPage !== currentPage) {
+                            currentPage = targetPage;
+                            filterAndRender();
+                            document.querySelector(".page-header").scrollIntoView({ behavior: "smooth" });
+                        }
+                    });
+                });
+            }
+        }
     };
+
     // Category filters bind
     document.querySelectorAll("#category-filters .filter-chip").forEach(chip => {
         chip.addEventListener("click", (e) => {
@@ -1405,13 +1499,20 @@ function renderShopView(container) {
             e.target.classList.add("active");
             activeCat = e.target.getAttribute("data-category");
             activeSubcat = "All";
+            currentPage = 1;
             renderSubcategoryFilters();
             filterAndRender();
         });
     });
 
-    searchInput.addEventListener("input", filterAndRender);
-    sortSelect.addEventListener("change", filterAndRender);
+    searchInput.addEventListener("input", () => {
+        currentPage = 1;
+        filterAndRender();
+    });
+    sortSelect.addEventListener("change", () => {
+        currentPage = 1;
+        filterAndRender();
+    });
     renderSubcategoryFilters();
     filterAndRender();
 }

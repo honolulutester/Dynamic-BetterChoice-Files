@@ -2701,3 +2701,78 @@ footer {
     accent-color: var(--forest-green);
     cursor: pointer;
 }
+
+/* --- PRODUCT CATALOG PAGINATION --- */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 48px auto 24px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    opacity: 0.7;
+    font-family: var(--font-body);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn, .pagination-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background-color: var(--white);
+    color: var(--forest-green);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-quick);
+}
+
+.pagination-btn:hover:not(:disabled), .pagination-number:hover:not(.active) {
+    background-color: var(--sand-light);
+    border-color: var(--forest-green);
+    color: var(--forest-green);
+}
+
+.pagination-number.active {
+    background-color: var(--forest-green);
+    border-color: var(--forest-green);
+    color: var(--white);
+    cursor: default;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-color: var(--sand-light);
+    border-color: var(--border-color);
+}
+
+.pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 40px;
+    color: var(--charcoal);
+    opacity: 0.5;
+    font-weight: 500;
+}
