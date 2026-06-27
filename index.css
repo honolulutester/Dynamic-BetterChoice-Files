@@ -155,12 +155,12 @@ header {
     justify-content: center;
     flex-wrap: nowrap;
     align-items: center;
-    gap: clamp(14px, 1.6vw, 24px);
+    gap: clamp(10px, 1.2vw, 20px);
     min-width: 0;
 }
 
 .nav-link {
-    font-size: clamp(11px, 0.9vw, 13px);
+    font-size: clamp(10.5px, 0.8vw, 13px);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -2265,7 +2265,7 @@ footer {
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .mobile-menu-btn { display: block; }
 
     .header-container {
