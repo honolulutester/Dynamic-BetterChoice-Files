@@ -2590,3 +2590,114 @@ footer {
     header, footer, .cart-slider, .contact-fab-stack, .live-chat-panel, .notification-banner, .announcement-bar { display: none !important; }
     main { padding: 0; }
 }
+
+/* --- PREMIUM CHECKOUT DEFAULT ADDRESS CARD --- */
+.default-address-card {
+    background: var(--ivory);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(30, 58, 47, 0.03);
+    position: relative;
+    transition: var(--transition-smooth);
+}
+.default-address-card:hover {
+    border-color: var(--forest-green);
+    box-shadow: 0 4px 12px rgba(30, 58, 47, 0.06);
+}
+.default-address-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 8px;
+}
+.default-address-card-title {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    color: var(--forest-green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.default-address-card-title svg {
+    color: var(--forest-green);
+}
+.default-address-card-badge {
+    background: rgba(30, 58, 47, 0.08);
+    color: var(--forest-green);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.default-address-card-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #444;
+}
+.default-address-card-name {
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 4px;
+}
+
+/* --- COLLAPSIBLE DIFFERENT ADDRESS SECTION --- */
+.checkout-different-address-toggle {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+.checkout-different-address-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--forest-green);
+    user-select: none;
+}
+.checkout-different-address-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--forest-green);
+    cursor: pointer;
+}
+.collapsible-checkout-section {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease;
+    margin-bottom: 0;
+}
+.collapsible-checkout-section.open {
+    max-height: 800px;
+    opacity: 1;
+    margin-bottom: 20px;
+}
+
+/* --- SAVE ADDRESS DEFAULT TOGGLE --- */
+.save-address-profile-toggle {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+}
+.save-address-profile-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #555;
+    user-select: none;
+}
+.save-address-profile-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--forest-green);
+    cursor: pointer;
+}

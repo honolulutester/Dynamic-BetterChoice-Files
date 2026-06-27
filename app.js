@@ -512,6 +512,28 @@ async function issueEcoCredits(email, amount) {
 }
 
 function getDeliveryDetailsFromCart() {
+    const u = state.currentUser;
+    const isLogged = Boolean(u);
+    const hasDefault = u && u.division && u.district && u.area && u.addressLine;
+    const useDifferentAddress = document.getElementById("use-different-address")?.checked;
+    
+    if (isLogged && hasDefault && !useDifferentAddress) {
+        const profileLoc = locationFromLegacy(u);
+        return {
+            name: u.name,
+            phone: u.phone,
+            division: profileLoc.division,
+            district: profileLoc.district,
+            area: profileLoc.area,
+            addressLine: profileLoc.addressLine,
+            landmark: profileLoc.landmark,
+            address: u.address || formatFullAddress(profileLoc),
+            slot: document.getElementById("delivery-slot")?.value || "",
+            email: u.email,
+            birthdate: u.birthdate
+        };
+    }
+    
     const loc = readLocationFields("delivery");
     return {
         name: document.getElementById("delivery-name")?.value.trim() || "",
@@ -522,7 +544,9 @@ function getDeliveryDetailsFromCart() {
         addressLine: loc.addressLine,
         landmark: loc.landmark,
         address: formatFullAddress(loc),
-        slot: document.getElementById("delivery-slot")?.value || ""
+        slot: document.getElementById("delivery-slot")?.value || "",
+        email: document.getElementById("delivery-email")?.value.trim() || "",
+        birthdate: document.getElementById("delivery-birthdate")?.value || ""
     };
 }
 
@@ -542,6 +566,16 @@ function validateDeliveryDetails(details) {
     if (!/^01\d{9}$/.test(details.phone)) return "Please enter a valid 11-digit mobile number.";
     if (!details.division || !details.district || !details.area) return "Please select division, district, and area.";
     if (!details.addressLine || details.addressLine.length < 5) return "Please enter house, road, or block details.";
+    
+    if (!state.currentUser) {
+        if (!details.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) {
+            return "Please enter a valid email address.";
+        }
+        if (!details.birthdate) {
+            return "Please enter your date of birth for marketing analysis.";
+        }
+    }
+    
     return null;
 }
 
@@ -2677,6 +2711,66 @@ function renderCheckoutForm(container) {
     const { totals, html: totalsHtml } = renderCheckoutTotalsHtml();
     const couponHints = Object.keys(COUPONS).map(k => `<code>${k}</code>`).join(", ");
 
+    const u = state.currentUser;
+    const hasDefault = u && u.division && u.district && u.area && u.addressLine;
+    
+    let defaultAddressCardHtml = "";
+    let differentAddressToggleHtml = "";
+    let locationFieldsClass = "";
+    let saveAddressCheckboxHtml = "";
+    let guestFieldsHtml = "";
+    
+    if (u) {
+        if (hasDefault) {
+            defaultAddressCardHtml = `
+                <div class="default-address-card" id="default-address-summary">
+                    <div class="default-address-card-header">
+                        <span class="default-address-card-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Deliver to Default Address
+                        </span>
+                        <span class="default-address-card-badge">Default</span>
+                    </div>
+                    <div class="default-address-card-body">
+                        <div class="default-address-card-name">${u.name} · ${u.phone}</div>
+                        <div>${formatFullAddress(locationFromLegacy(u))}</div>
+                    </div>
+                </div>
+            `;
+            differentAddressToggleHtml = `
+                <div class="checkout-different-address-toggle">
+                    <label>
+                        <input type="checkbox" id="use-different-address">
+                        Deliver to a different address
+                    </label>
+                </div>
+            `;
+            locationFieldsClass = "collapsible-checkout-section";
+            saveAddressCheckboxHtml = `
+                <div class="save-address-profile-toggle">
+                    <label>
+                        <input type="checkbox" id="save-address-to-profile">
+                        Save this new address as my default delivery address
+                    </label>
+                </div>
+            `;
+        } else {
+            locationFieldsClass = "";
+        }
+    } else {
+        guestFieldsHtml = `
+            <div class="form-group">
+                <label for="delivery-email">Email Address</label>
+                <input type="email" id="delivery-email" class="form-control" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="delivery-birthdate">Date of Birth</label>
+                <input type="date" id="delivery-birthdate" class="form-control" required max="${new Date().toISOString().slice(0, 10)}">
+            </div>
+        `;
+        locationFieldsClass = "";
+    }
+
     container.innerHTML = `
         <div class="checkout-page">
             <div class="page-title">
@@ -2695,16 +2789,24 @@ function renderCheckoutForm(container) {
                 </div>
                 <div class="checkout-form-card">
                     <h3>Delivery &amp; Payment</h3>
-                    <div class="form-group">
-                        <label for="delivery-name">Full Name</label>
-                        <input type="text" id="delivery-name" class="form-control" placeholder="Recipient name">
+                    ${defaultAddressCardHtml}
+                    ${differentAddressToggleHtml}
+                    
+                    <div id="different-address-section" class="${locationFieldsClass}">
+                        ${guestFieldsHtml}
+                        <div class="form-group">
+                            <label for="delivery-name">Full Name</label>
+                            <input type="text" id="delivery-name" class="form-control" placeholder="Recipient name" value="${u ? u.name : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-phone">Mobile Number</label>
+                            <input type="tel" id="delivery-phone" class="form-control" placeholder="01XXXXXXXXX" maxlength="11" value="${u ? u.phone : ''}">
+                        </div>
+                        <h4 class="form-section-title">Delivery location</h4>
+                        ${renderLocationFieldsHtml("delivery", u || {})}
+                        ${saveAddressCheckboxHtml}
                     </div>
-                    <div class="form-group">
-                        <label for="delivery-phone">Mobile Number</label>
-                        <input type="tel" id="delivery-phone" class="form-control" placeholder="01XXXXXXXXX" maxlength="11">
-                    </div>
-                    <h4 class="form-section-title">Delivery location</h4>
-                    ${renderLocationFieldsHtml("delivery", state.currentUser || {})}
+                    
                     <div class="form-group">
                         <label for="delivery-slot">Delivery Time Slot</label>
                         <select id="delivery-slot" class="form-control">
@@ -2737,6 +2839,20 @@ function renderCheckoutForm(container) {
 
     bindLocationFields("delivery", locationFromLegacy(state.currentUser || {}));
     prefillDeliveryForm();
+
+    const useDiffCheckbox = document.getElementById("use-different-address");
+    const diffSec = document.getElementById("different-address-section");
+    if (useDiffCheckbox && diffSec) {
+        const updateVisibility = () => {
+            if (useDiffCheckbox.checked) {
+                diffSec.classList.add("open");
+            } else {
+                diffSec.classList.remove("open");
+            }
+        };
+        useDiffCheckbox.addEventListener("change", updateVisibility);
+        updateVisibility();
+    }
 
     document.getElementById("apply-coupon-btn").addEventListener("click", () => {
         state.activeCoupon = document.getElementById("coupon-code").value.trim();
@@ -2910,7 +3026,9 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
         addressLine: details.addressLine || "",
         landmark: details.landmark || "",
         address: details.address || formatFullAddress(details),
-        guest: !state.currentUser
+        guest: !state.currentUser,
+        email: details.email || (state.currentUser ? state.currentUser.email : ""),
+        birthdate: details.birthdate || (state.currentUser ? state.currentUser.birthdate : "")
     };
 
     state.orders.push(newOrder);
@@ -2918,14 +3036,20 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
     state.pendingCheckout = null;
 
     if (state.currentUser) {
-        state.currentUser.name = details.name;
-        state.currentUser.phone = details.phone;
-        state.currentUser.division = details.division;
-        state.currentUser.district = details.district;
-        state.currentUser.area = details.area;
-        state.currentUser.addressLine = details.addressLine;
-        state.currentUser.landmark = details.landmark;
-        state.currentUser.address = details.address;
+        const saveAddressChecked = document.getElementById("save-address-to-profile")?.checked;
+        const useDifferentAddress = document.getElementById("use-different-address")?.checked;
+        const hasDefault = state.currentUser.division && state.currentUser.district && state.currentUser.area && state.currentUser.addressLine;
+        
+        if (saveAddressChecked || !hasDefault || !useDifferentAddress) {
+            state.currentUser.name = details.name;
+            state.currentUser.phone = details.phone;
+            state.currentUser.division = details.division;
+            state.currentUser.district = details.district;
+            state.currentUser.area = details.area;
+            state.currentUser.addressLine = details.addressLine;
+            state.currentUser.landmark = details.landmark;
+            state.currentUser.address = details.address;
+        }
     }
 
     if (isSupabaseEnabled()) {
@@ -2935,9 +3059,7 @@ async function finalizeTransactionAsync(amount, reason, slot, creditsToEarn, sto
         }
     }
 
-    const sheetResult = await appendOrderToGoogleSheet(newOrder, {
-        email: state.currentUser?.email || ""
-    });
+    const sheetResult = await appendOrderToGoogleSheet(newOrder);
     if (!sheetResult.ok && !sheetResult.skipped) {
         console.warn("Google Sheets order log failed:", sheetResult.message);
     }

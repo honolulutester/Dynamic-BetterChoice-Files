@@ -38,7 +38,9 @@ const HEADERS = [
   "Wallet Applied",
   "Total (৳)",
   "Status",
-  "Guest Order"
+  "Guest Order",
+  "Birthdate",
+  "Age Group"
 ];
 
 function doPost(e) {
@@ -74,7 +76,9 @@ function doPost(e) {
       data.walletApplied || 0,
       data.total || 0,
       data.status || "Confirmed",
-      data.guest ? "Yes" : "No"
+      data.guest ? "Yes" : "No",
+      data.birthdate || "",
+      data.ageGroup || ""
     ]);
 
     return jsonResponse({ ok: true });

@@ -56,7 +56,9 @@ function dbOrderToApp(row) {
         addressLine: row.address_line || row.address || "",
         landmark: row.landmark || "",
         address: row.address,
-        guest: row.is_guest
+        guest: row.is_guest,
+        email: row.email || "",
+        birthdate: row.birthdate || ""
     };
 }
 
@@ -83,7 +85,9 @@ function appOrderToDb(order, userId) {
         address_line: order.addressLine || order.address || "",
         landmark: order.landmark || "",
         address: order.address,
-        is_guest: Boolean(order.guest)
+        is_guest: Boolean(order.guest),
+        email: order.email || null,
+        birthdate: order.birthdate || null
     };
 }
 

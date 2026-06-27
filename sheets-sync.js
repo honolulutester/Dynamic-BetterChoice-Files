@@ -62,7 +62,7 @@ export async function appendOrderToGoogleSheet(order, extras = {}) {
         trackingCode: order.trackingCode,
         date: order.date,
         name: order.name,
-        email: extras.email || "",
+        email: order.email || extras.email || "",
         phone: order.phone,
         division: loc.division || "",
         district: loc.district || "",
@@ -80,7 +80,9 @@ export async function appendOrderToGoogleSheet(order, extras = {}) {
         walletApplied: order.walletApplied || 0,
         total: order.price,
         status: order.status || "Confirmed",
-        guest: Boolean(order.guest)
+        guest: Boolean(order.guest),
+        birthdate: order.birthdate || extras.birthdate || "",
+        ageGroup: getAgeGroup(order.birthdate || extras.birthdate || "")
     });
 }
 
