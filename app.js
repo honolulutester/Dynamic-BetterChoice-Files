@@ -9,6 +9,7 @@ import {
     subscribeNewsletterEmail, isAuthCallbackHash
 } from './supabase.js';
 import { isOrdersSheetEnabled, isUsersSheetEnabled } from './orders-sheet.js';
+import { ORDERS_SHEET_WEBHOOK_URL } from './sheets-config.js';
 import { getLang, setLang, applyShellI18n, bindI18nState, t } from './i18n.js';
 import { parseProductIdFromUrl, getActivePrice } from './helpers.js';
 
@@ -115,6 +116,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    if (isOrdersSheetEnabled() && ORDERS_SHEET_WEBHOOK_URL) {
+        fetch(ORDERS_SHEET_WEBHOOK_URL).catch(() => {});
     }
 
     const pid = parseProductIdFromUrl();
