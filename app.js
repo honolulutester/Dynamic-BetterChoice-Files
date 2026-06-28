@@ -21,6 +21,7 @@ import { renderMealView } from './views/meals.js';
 import { renderExpertsView, renderEditorialView, renderAboutView, renderPoliciesView, renderTrackView, renderEditorialSubmitView } from './views/misc.js';
 import { renderLoginView, renderRegisterView } from './views/auth.js';
 import { renderCheckoutView, closeBkashModal } from './views/checkout.js';
+import { renderDashboardView } from './views/dashboard.js';
 
 const WHATSAPP_PHONE = "8801778522749";
 
