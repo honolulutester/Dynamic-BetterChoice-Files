@@ -1,9 +1,8 @@
-import { state, saveState, syncCartUI } from '../store.js';
+import { state, saveState, syncCartUI, isCloudUser } from '../store.js';
 import { getOrderUnit } from '../data.js';
 import { t, orderStatusLabel } from '../i18n.js';
-import { navigateTo, renderPage, showNotification } from '../app.js';
 import { getActivePrice, getCheckoutTotals, applyCoupon, buildOrderLineItems } from '../helpers.js';
-import { isSupabaseEnabled, saveOrderToSupabase, isCloudUser } from '../supabase.js';
+import { isSupabaseEnabled, saveOrderToSupabase } from '../supabase.js';
 import { renderLocationFieldsHtml, bindLocationFields, readLocationFields, locationFromLegacy, formatFullAddress } from '../location-fields.js';
 import { COUPONS, ORDER_STATUSES, TRACKING_LOOKUP_KEY } from '../config.js';
 import { appendOrderToGoogleSheet } from '../orders-sheet.js';
@@ -62,7 +61,7 @@ function renderCheckoutTotalsHtml() {
 
 function renderCheckoutForm(container) {
     const summaryHtml = state.cart.map(item => {
-        const p = state.products.find(prod => prod.id === item.id);
+        const p = state.products.find(prod => prod.id === (item.productId || item.id));
         if (!p) return "";
         return `
             <div class="checkout-summary-item">
@@ -558,7 +557,7 @@ export async function finalizeTransactionAsync(amount, reason, slot, creditsToEa
     const lineItems = state.pendingCheckout?.lineItems || buildOrderLineItems(state.cart, state.products);
 
     state.cart.forEach(item => {
-        const p = state.products.find(prod => prod.id === item.id);
+        const p = state.products.find(prod => prod.id === (item.productId || item.id));
         if (p) p.inventory = Math.max(0, p.inventory - item.qty);
     });
 

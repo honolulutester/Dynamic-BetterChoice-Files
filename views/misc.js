@@ -5,7 +5,6 @@ import { TRACKING_LOOKUP_KEY, ORDER_STATUSES } from '../config.js';
 import { isSupabaseEnabled, trackOrderById } from '../supabase.js';
 import { formatFullAddress } from '../location-fields.js';
 import { triggerBkashPayment, renderOrderTracker } from './checkout.js';
-import { openLiveChat, navigateTo } from '../app.js';
 
 function formatPolicyText(text) {
     return text

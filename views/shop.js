@@ -1,7 +1,6 @@
 import { state, addToCart, toggleWishlist } from '../store.js';
-import { SHOP_CATEGORY_CHIPS, getOrderUnit } from '../data.js';
-import { t, subcategoryLabel } from '../i18n.js';
-import { navigateTo, renderPage, showNotification } from '../app.js';
+import { getOrderUnit } from '../data.js';
+import { t, subcategoryLabel, SHOP_CATEGORY_CHIPS } from '../i18n.js';
 import { getActivePrice, getProductTraceUrl, drawQRToCanvas } from '../helpers.js';
 import { isSupabaseEnabled, fetchProductReviews, submitProductReview } from '../supabase.js';
 

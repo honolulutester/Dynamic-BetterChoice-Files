@@ -2,7 +2,6 @@ import { state, loginUser, registerUser, updateHeaderAccount } from '../store.js
 import { isSupabaseEnabled, supabaseResetPassword, resendConfirmationEmail } from '../supabase.js';
 import { renderLocationFieldsHtml, bindLocationFields, readLocationFields } from '../location-fields.js';
 import { t } from '../i18n.js';
-import { navigateTo, navigateAfterAuth, showNotification } from '../app.js';
 
 export function renderLoginView(container) {
     container.innerHTML = `

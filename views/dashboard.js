@@ -1,11 +1,10 @@
 import {
     state, saveState, syncStateToUser, updateHeaderAccount,
     logoutUser, reorderItems, addToCart, toggleWishlist,
-    isMerchantUnlocked, issueEcoCredits
+    isMerchantUnlocked, issueEcoCredits, isCloudUser
 } from '../store.js';
 import { t } from '../i18n.js';
-import { navigateTo, renderPage, showNotification } from '../app.js';
-import { isSupabaseEnabled, isCloudUser, saveReturnRequestToSupabase, merchantAdvanceOrder } from '../supabase.js';
+import { isSupabaseEnabled, saveReturnRequestToSupabase, merchantAdvanceOrder } from '../supabase.js';
 import { appendUserToGoogleSheet } from '../orders-sheet.js';
 import { fetchGoogleSheetCatalog, DEFAULT_PRODUCTS } from '../data.js';
 import { MERCHANT_PIN, ORDER_STATUSES } from '../config.js';

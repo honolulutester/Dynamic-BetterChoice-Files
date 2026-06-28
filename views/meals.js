@@ -1,5 +1,4 @@
 import { state, saveState, syncCartUI } from '../store.js';
-import { showNotification } from '../app.js';
 import { MEAL_INGREDIENT_KEYS } from '../config.js';
 import { findMealProducts } from '../helpers.js';
 

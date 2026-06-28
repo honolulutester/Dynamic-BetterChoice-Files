@@ -25,7 +25,7 @@ export function applyCoupon(code, subtotal) {
 export function getCheckoutTotals(state, couponCode = "") {
     let subtotal = 0;
     state.cart.forEach(item => {
-        const p = state.products.find(prod => prod.id === item.id);
+        const p = state.products.find(prod => prod.id === (item.productId || item.id));
         if (!p) return;
         subtotal += getActivePrice(p) * item.qty;
     });
@@ -51,7 +51,7 @@ export function getCheckoutTotals(state, couponCode = "") {
 
 export function buildOrderLineItems(cart, products) {
     return cart.map(item => {
-        const p = products.find(prod => prod.id === item.id);
+        const p = products.find(prod => prod.id === (item.productId || item.id));
         if (!p) return null;
         const price = getActivePrice(p);
         return {

@@ -1,5 +1,4 @@
 import { state, saveState, syncCartUI } from '../store.js';
-import { showNotification } from '../app.js';
 import { WORKOUT_SHOP_MATCHERS } from '../config.js';
 
 export function renderWorkoutView(container) {

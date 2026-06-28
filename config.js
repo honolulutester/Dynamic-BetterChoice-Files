@@ -20,3 +20,7 @@ export const MEAL_INGREDIENT_KEYS = [
 ];
 
 export const WORKOUT_SHOP_MATCHERS = ["whey", "pea protein", "protein", "moringa", "botanical", "creatine"];
+
+export const ORDER_STATUSES = ["Confirmed", "Packed", "Out for Delivery", "Delivered"];
+export const TRACKING_LOOKUP_KEY = "eco_track_lookup";
+

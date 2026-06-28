@@ -504,3 +504,11 @@ export function renderCartItems() {
     if (proceedBtn) proceedBtn.disabled = false;
     syncCartUI();
 }
+
+window.navigateTo = navigateTo;
+window.renderPage = renderPage;
+window.showNotification = showNotification;
+window.openLiveChat = openLiveChat;
+window.navigateAfterAuth = navigateAfterAuth;
+
+
