@@ -619,6 +619,9 @@ export const ARTICLES = [
         excerpt: "An in-depth look at how packaging choices affect the delicate ecosystem of the Sundarbans and the Bay of Bengal, and the shift towards biodegradable fibers.",
         author: "Dr. Farhana Yasmin, Environmentalist",
         date: "June 15, 2026",
+        readTime: "5 min read",
+        image: "./sundarbans_delta_conservation.png",
+        likes: 42,
         content: `The Bengal Delta, the largest delta in the world, is choked by a silent crisis: non-biodegradable plastics. Every single-use packaging bag, water bottle, and synthetic wrapping material discarded in urban centers like Dhaka eventually makes its way into our river systems, terminating in the delicate mangroves of the Sundarbans and the marine habitats of the Bay of Bengal.
 
 Our ancestors relied on natural banana leaves, earthen clay pots, and golden jute canvas to transport and store food. These organic substrates degraded seamlessly back into the delta's soil, feeding rather than poisoning the environment. 
@@ -632,6 +635,9 @@ By replacing synthetic polymers with local biodegradable materials like unbleach
         excerpt: "Reclaiming the health benefits and deep flavors of cooking traditional deshi dishes in cast iron pans rather than Teflon-coated cookware.",
         author: "Chef Tariqul Islam",
         date: "June 10, 2026",
+        readTime: "4 min read",
+        image: "./bengali_cast_iron_cooking.png",
+        likes: 29,
         content: `For decades, modern kitchens in Bangladesh have adopted Teflon and chemical-coated non-stick cookware, unaware of the endocrine-disrupting chemicals (like BPA, PFOA) that leach into food under high heat. 
 
 Reclaiming the traditional cast-iron 'karahi' or skillet is a return to clean, healthy eating. Cast iron distributes heat evenly, sealing in natural juices and caramelizing organic proteins like grass-fed deshi beef or wild river Hilsha to perfection.
@@ -645,6 +651,9 @@ Furthermore, cooking acidic gravies (like tomatoes or lemon-infused fish curries
         excerpt: "How to maintain your hypertrophic splits and progressive strength gains at home when heavy rainfall disrupts outdoor activity and commute.",
         author: "Sabir Rahman, Certified Pro-Trainer",
         date: "June 05, 2026",
+        readTime: "6 min read",
+        image: "./monsoon_home_workout.png",
+        likes: 56,
         content: `The heavy monsoon downpours in cities like Dhaka and Chittagong often disrupt gym routines. Gridlocked traffic and flooded streets make commuting to fitness centers a chore. 
 
 However, progress doesn't need to stall. You can maintain hypertrophy and strength splits by adjusting your training variables. Leverage high-intensity callisthenics splits, tempo control, and progressive mechanical disadvantages. 
@@ -954,7 +963,6 @@ export function parseCSV(csvText) {
     return data;
 }
 
-// Fetch published CSV from Google Sheet URL
 export async function fetchGoogleSheetCatalog(url) {
     try {
         const csvUrl = buildCsvExportUrl(url);
@@ -965,7 +973,98 @@ export async function fetchGoogleSheetCatalog(url) {
         const text = await response.text();
         return parseCSV(text);
     } catch (err) {
-        console.error("Google Sheets synchronization failed:", err);
+        console.error("Google Sheets catalog sync failed:", err);
+        throw err;
+    }
+}
+
+export function parseEditorialCSV(csvText) {
+    if (!csvText) return [];
+    
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+        let c = csvText[i];
+        let next = csvText[i+1];
+
+        if (c === '"') {
+            if (inQuotes && next === '"') {
+                row[row.length - 1] += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (c === ',') {
+            if (inQuotes) {
+                row[row.length - 1] += c;
+            } else {
+                row.push("");
+            }
+        } else if (c === '\r' || c === '\n') {
+            if (inQuotes) {
+                row[row.length - 1] += c;
+            } else {
+                if (c === '\r' && next === '\n') {
+                    i++;
+                }
+                lines.push(row);
+                row = [""];
+            }
+        } else {
+            row[row.length - 1] += c;
+        }
+    }
+    if (row.length > 1 || row[0] !== "") {
+        lines.push(row);
+    }
+
+    if (lines.length < 2) return [];
+
+    const headers = lines[0].map(h => h.trim().toLowerCase().replace(/\s+/g, "").replace(/_/g, ""));
+    const data = [];
+
+    for (let r = 1; r < lines.length; r++) {
+        const rowData = lines[r];
+        if (rowData.length < headers.length) continue;
+        
+        const obj = {};
+        for (let h = 0; h < headers.length; h++) {
+            let key = headers[h];
+            if (key === "itemid" || key === "id") key = "id";
+            if (key === "readtime" || key === "readingtime") key = "readTime";
+            if (key === "imagelink" || key === "imageurl" || key === "photo" || key === "photos" || key === "image") key = "image";
+            
+            let val = rowData[h]?.trim() || "";
+            if (key === "likes") {
+                val = parseInt(val.replace(/[^\d]/g, ""), 10) || 0;
+            }
+            obj[key] = val;
+        }
+        
+        if (!obj.id) obj.id = `sheet-art-${r}`;
+        if (!obj.title) continue;
+        if (!obj.content) continue;
+        if (obj.likes === undefined) obj.likes = 0;
+        if (!obj.readTime) obj.readTime = "3 min read";
+        if (!obj.image) obj.image = "";
+        
+        data.push(obj);
+    }
+    
+    return data;
+}
+
+export async function fetchGoogleSheetEditorial(url) {
+    try {
+        const csvUrl = buildCsvExportUrl(url);
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error("Could not retrieve editorial spreadsheet feed.");
+        const text = await response.text();
+        return parseEditorialCSV(text);
+    } catch (err) {
+        console.error("Google Sheets editorial sync failed:", err);
         throw err;
     }
 }

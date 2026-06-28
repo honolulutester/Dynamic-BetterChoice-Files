@@ -15,7 +15,22 @@
 
 const SHEET_CUSTOMERS = "Customers";
 const SHEET_ORDERS = "Orders";
+const SHEET_SUBMISSIONS = "Submissions";
 const WEBHOOK_SECRET = "choose-a-long-random-secret"; // Set the same value in sheets-config.js
+
+const SUBMISSION_HEADERS = [
+  "Timestamp",
+  "Column ID",
+  "Title",
+  "Category Tag",
+  "Excerpt",
+  "Author Name",
+  "Email",
+  "Date",
+  "Read Time",
+  "Image Link",
+  "Content"
+];
 
 const CUSTOMER_HEADERS = [
   "Timestamp",
@@ -75,8 +90,24 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "Unauthorized" });
     }
 
-    // Determine payload type: Orders have orderId, Customers have userId/event
-    if (data.orderId) {
+    // Determine payload type: Submissions have type === "submission", Orders have orderId, Customers have userId/event
+    if (data.type === "submission") {
+      const sheet = getOrCreateSheet_(SHEET_SUBMISSIONS, SUBMISSION_HEADERS);
+      sheet.appendRow([
+        data.timestamp || new Date().toISOString(),
+        data.columnId || "",
+        data.title || "",
+        data.tag || "",
+        data.excerpt || "",
+        data.author || "",
+        data.email || "",
+        data.date || "",
+        data.readTime || "",
+        data.image || "",
+        data.content || ""
+      ]);
+      return jsonResponse({ ok: true, type: "submission" });
+    } else if (data.orderId) {
       const sheet = getOrCreateSheet_(SHEET_ORDERS, ORDER_HEADERS);
       sheet.appendRow([
         data.timestamp || new Date().toISOString(),

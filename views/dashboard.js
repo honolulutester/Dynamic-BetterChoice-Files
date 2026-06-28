@@ -6,7 +6,7 @@ import {
 import { t } from '../i18n.js';
 import { isSupabaseEnabled, saveReturnRequestToSupabase, merchantAdvanceOrder } from '../supabase.js';
 import { appendUserToGoogleSheet } from '../orders-sheet.js';
-import { fetchGoogleSheetCatalog, DEFAULT_PRODUCTS } from '../data.js';
+import { fetchGoogleSheetCatalog, DEFAULT_PRODUCTS, fetchGoogleSheetEditorial, ARTICLES } from '../data.js';
 import { MERCHANT_PIN, ORDER_STATUSES } from '../config.js';
 import { getActivePrice } from '../helpers.js';
 import { renderLocationFieldsHtml, bindLocationFields, readLocationFields, locationFromLegacy, formatFullAddress } from '../location-fields.js';
@@ -304,6 +304,19 @@ export function renderDashboardView(container) {
                         <button type="button" id="reset-catalog-btn" class="filter-chip" style="border-radius:var(--radius-sm); padding:0 20px;">Reset to Default</button>
                     </div>
                 </form>
+
+                <h3 style="font-family:var(--font-heading); font-size:20px; margin-bottom:15px; margin-top:30px;">Google Sheets Editorial</h3>
+                <p style="font-size:13px; color:#666; margin-bottom:16px;">Sync articles feed from a sheet. Include headers: <code>id, title, tag, excerpt, author, date, readTime, image, likes, content</code>.</p>
+                <form id="merchant-editorial-form" style="margin-bottom:30px;">
+                    <div class="form-group">
+                        <label for="editorial-url-input">Google Sheet Link / CSV URL</label>
+                        <input type="url" id="editorial-url-input" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/..." value="${state.editorialSheetUrl || ""}">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="submit-btn" style="flex:1;">Sync Articles</button>
+                        <button type="button" id="reset-articles-btn" class="filter-chip" style="border-radius:var(--radius-sm); padding:0 20px;">Reset to Default</button>
+                    </div>
+                </form>
             `;
 
             document.getElementById("issue-credits-form").addEventListener("submit", async (e) => {
@@ -388,6 +401,43 @@ export function renderDashboardView(container) {
                     saveState();
                     showNotification("Catalog reverted to default built-in inventory.");
                     renderPage("shop");
+                }
+            });
+
+            document.getElementById("merchant-editorial-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const url = document.getElementById("editorial-url-input").value.trim();
+                
+                if (!url) {
+                    alert("Please provide a valid URL!");
+                    return;
+                }
+
+                showNotification("Syncing articles from Google Sheet...");
+                try {
+                    const sheetArticles = await fetchGoogleSheetEditorial(url);
+                    if (sheetArticles.length > 0) {
+                        state.articles = sheetArticles;
+                        state.editorialSheetUrl = url;
+                        saveState();
+                        showNotification(`Synced ${sheetArticles.length} articles successfully!`);
+                        renderPage("editorial");
+                    } else {
+                        throw new Error("No data parsed from CSV sheet feed.");
+                    }
+                } catch (err) {
+                    alert("Synchronization failed! Check CSV configuration.");
+                    console.error(err);
+                }
+            });
+
+            document.getElementById("reset-articles-btn").addEventListener("click", () => {
+                if (confirm("Reset articles back to the built-in default?")) {
+                    state.articles = [...ARTICLES];
+                    state.editorialSheetUrl = "";
+                    saveState();
+                    showNotification("Articles reset to default!");
+                    renderPage("editorial");
                 }
             });
         }

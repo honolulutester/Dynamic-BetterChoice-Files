@@ -120,3 +120,22 @@ function locationFromUser(user) {
         landmark: user.landmark || ""
     };
 }
+
+export async function appendColumnToGoogleSheet(column) {
+    if (!isOrdersSheetEnabled()) return { ok: false, skipped: true };
+
+    return postToWebhook(ORDERS_SHEET_WEBHOOK_URL, ORDERS_SHEET_SECRET, {
+        type: "submission",
+        timestamp: new Date().toISOString(),
+        columnId: column.id,
+        title: column.title,
+        tag: column.tag,
+        excerpt: column.excerpt,
+        author: column.author,
+        email: column.email || "",
+        date: column.date,
+        readTime: column.readTime,
+        image: column.image || "",
+        content: column.content
+    });
+}

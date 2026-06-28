@@ -3210,3 +3210,135 @@ footer {
 .guest-impact-actions .register-btn:hover {
     background: var(--sand-light);
 }
+
+/* Global Writer Submission Banner */
+.writer-submission-banner {
+    background: linear-gradient(135deg, rgba(30,58,47,0.03) 0%, rgba(178,122,18,0.04) 100%);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 40px 20px;
+    margin-top: 50px;
+}
+.writer-banner-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+.writer-banner-text {
+    max-width: 800px;
+}
+.writer-banner-text h3 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--forest-green);
+    margin-bottom: 8px;
+}
+.writer-banner-text p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+.writer-banner-btn {
+    display: inline-block;
+    background: var(--forest-green);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: var(--transition-quick);
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.writer-banner-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(30,58,47,0.15);
+    background: #152920;
+}
+
+/* Blog Card Hover Actions */
+.blog-card-image {
+    position: relative;
+    overflow: hidden;
+}
+.blog-card-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 10;
+}
+.blog-card:hover .blog-card-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+.blog-action-btn {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.blog-action-btn:hover {
+    transform: scale(1.05);
+    background: #ffffff;
+}
+.blog-action-btn svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+.blog-action-btn.like-btn:hover svg {
+    transform: scale(1.2);
+}
+.blog-action-btn.liked {
+    background: #ffebee;
+    color: #c62828;
+    border-color: #ffcdd2;
+}
+
+/* Submission Form Page styling */
+.submission-layout {
+    max-width: 700px;
+    margin: 40px auto;
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow-premium);
+}
+.submission-layout h3 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--forest-green);
+    margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+    .writer-banner-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    .writer-banner-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

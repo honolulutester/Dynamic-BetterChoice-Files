@@ -2,7 +2,7 @@ import {
     state, loadState, saveState, syncCartUI, updateHeaderAccount,
     clearUserSessionState, syncUserToState, updateCartQty
 } from './store.js';
-import { DEFAULT_PRODUCTS, fetchGoogleSheetCatalog, getOrderUnit } from './data.js';
+import { DEFAULT_PRODUCTS, fetchGoogleSheetCatalog, getOrderUnit, fetchGoogleSheetEditorial } from './data.js';
 import { CATALOG_CACHE_VERSION, TRACKING_LOOKUP_KEY } from './config.js';
 import {
     isSupabaseEnabled, initSupabaseAuth, loadUserFromSupabase,
@@ -17,7 +17,7 @@ import { renderShopView, renderTraceabilityView } from './views/shop.js';
 import { renderEcoImpactView } from './views/impact.js';
 import { renderWorkoutView } from './views/workout.js';
 import { renderMealView } from './views/meals.js';
-import { renderExpertsView, renderEditorialView, renderAboutView, renderPoliciesView, renderTrackView } from './views/misc.js';
+import { renderExpertsView, renderEditorialView, renderAboutView, renderPoliciesView, renderTrackView, renderEditorialSubmitView } from './views/misc.js';
 import { renderLoginView, renderRegisterView } from './views/auth.js';
 import { renderCheckoutView, closeBkashModal } from './views/checkout.js';
 
@@ -37,7 +37,7 @@ function updateWhatsAppLinks(message = "") {
 }
 
 const APP_PAGES = new Set([
-    "shop", "impact", "traceability", "workout", "meals", "experts", "editorial",
+    "shop", "impact", "traceability", "workout", "meals", "experts", "editorial", "editorial-submit",
     "dashboard", "login", "register", "track", "about", "policies", "checkout"
 ]);
 
@@ -123,6 +123,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         if (product) state.activeProductTrace = product;
     }
     
+    
     // Auto-sync Google Sheet on load if configured
     if (state.sheetUrl) {
         showNotification("Auto-syncing catalog with Google Sheets...");
@@ -135,6 +136,20 @@ window.addEventListener("DOMContentLoaded", async () => {
             }
         } catch (e) {
             console.warn("Failed auto-syncing Google Sheet on startup. Using cached data.", e);
+        }
+    }
+
+    if (state.editorialSheetUrl) {
+        showNotification("Auto-syncing articles with Google Sheets...");
+        try {
+            const sheetArticles = await fetchGoogleSheetEditorial(state.editorialSheetUrl);
+            if (sheetArticles.length > 0) {
+                state.articles = sheetArticles;
+                saveState();
+                showNotification("Editorial Hub successfully updated from Google Sheets!");
+            }
+        } catch (e) {
+            console.warn("Failed auto-syncing Google Sheet articles on startup. Using cached data.", e);
         }
     }
 
@@ -407,6 +422,9 @@ export function renderPage(page) {
             break;
         case "editorial":
             renderEditorialView(content);
+            break;
+        case "editorial-submit":
+            renderEditorialSubmitView(content);
             break;
         case "dashboard":
             renderDashboardView(content);

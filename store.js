@@ -1,4 +1,4 @@
-import { DEFAULT_PRODUCTS, DEFAULT_SHEET_URL, fetchGoogleSheetCatalog } from './data.js';
+import { DEFAULT_PRODUCTS, DEFAULT_SHEET_URL, fetchGoogleSheetCatalog, ARTICLES, fetchGoogleSheetEditorial } from './data.js';
 import { MERCHANT_PIN, CATALOG_CACHE_VERSION } from './config.js';
 import { appendUserToGoogleSheet } from './orders-sheet.js';
 import { t } from './i18n.js';
@@ -12,6 +12,7 @@ import {
 // --- APPLICATION STATE ---
 export let state = {
     products: [...DEFAULT_PRODUCTS],
+    articles: [...ARTICLES],
     cart: [],
     wallet: 0,
     lifetimeCredits: 0,
@@ -20,6 +21,7 @@ export let state = {
     savedWorkouts: null,
     savedMeals: null,
     sheetUrl: DEFAULT_SHEET_URL,
+    editorialSheetUrl: "",
     activePage: "shop",
     activeProductTrace: null,
     tempBooking: null,
@@ -146,8 +148,14 @@ export function loadState() {
         const savedSheetUrl = localStorage.getItem("eco_sheet_url");
         state.sheetUrl = savedSheetUrl || DEFAULT_SHEET_URL;
 
+        const savedEditorialUrl = localStorage.getItem("eco_editorial_sheet_url");
+        state.editorialSheetUrl = savedEditorialUrl || "";
+
         const cachedProducts = localStorage.getItem("eco_products_cache");
         if (cachedProducts) state.products = JSON.parse(cachedProducts);
+
+        const cachedArticles = localStorage.getItem("eco_articles_cache");
+        if (cachedArticles) state.articles = JSON.parse(cachedArticles);
     } catch (e) {
         console.error("Error reading localStorage state:", e);
     }
@@ -174,7 +182,9 @@ export function saveState() {
         localStorage.setItem("eco_newsletter", JSON.stringify(state.newsletter));
         localStorage.setItem("eco_chat", JSON.stringify(state.chatMessages));
         localStorage.setItem("eco_sheet_url", state.sheetUrl);
+        localStorage.setItem("eco_editorial_sheet_url", state.editorialSheetUrl);
         localStorage.setItem("eco_products_cache", JSON.stringify(state.products));
+        localStorage.setItem("eco_articles_cache", JSON.stringify(state.articles));
     } catch (e) {
         console.error("Error writing state:", e);
     }
