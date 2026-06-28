@@ -423,6 +423,179 @@ footer {
     transform: translateY(-2px);
 }
 
+/* --- WORLD CUP BANNER --- */
+.world-cup-banner {
+    background: linear-gradient(135deg, #1A3E2D 0%, #0F2A1E 100%);
+    color: var(--ivory);
+    border-radius: var(--radius-lg);
+    padding: 40px 50px;
+    margin-bottom: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(197, 168, 128, 0.2);
+    box-shadow: 0 15px 35px rgba(30, 58, 47, 0.15);
+}
+
+.world-cup-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(197, 168, 128, 0.1) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.world-cup-banner::after {
+    content: '🏆';
+    position: absolute;
+    right: 5%;
+    bottom: -10px;
+    font-size: 140px;
+    opacity: 0.08;
+    transform: rotate(-15deg);
+    pointer-events: none;
+    user-select: none;
+}
+
+.wc-banner-content {
+    max-width: 65%;
+    z-index: 2;
+}
+
+.wc-badge {
+    background: linear-gradient(90deg, var(--gold) 0%, #E3C598 100%);
+    color: var(--charcoal);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 6px 14px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 10px rgba(197, 168, 128, 0.15);
+}
+
+.world-cup-banner h3 {
+    font-family: var(--font-heading);
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.world-cup-banner p {
+    font-size: 15px;
+    color: rgba(247, 245, 240, 0.85);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.wc-promo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.wc-promo-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(197, 168, 128, 0.4);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    transition: var(--transition-quick);
+}
+
+.wc-promo-code span {
+    font-size: 13px;
+    color: var(--sand);
+    font-weight: 500;
+}
+
+.code-badge {
+    background-color: var(--gold);
+    color: var(--charcoal);
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: var(--transition-quick);
+}
+
+.code-badge:hover {
+    background-color: var(--white);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.wc-illustration {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.wc-ball-glow {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(197, 168, 128, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.wc-ball-svg {
+    width: 80px;
+    height: 80px;
+    color: var(--gold);
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    animation: floatBall 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+@keyframes floatBall {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(10deg); }
+}
+
+@media (max-width: 768px) {
+    .world-cup-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px;
+        gap: 25px;
+    }
+    .wc-banner-content {
+        max-width: 100%;
+    }
+    .wc-illustration {
+        align-self: center;
+    }
+}
+
 /* --- PAGE TITLE & CONTROLS --- */
 .page-header {
     margin-bottom: 40px;

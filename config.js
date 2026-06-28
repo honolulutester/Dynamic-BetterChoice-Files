@@ -7,7 +7,8 @@ export const CATALOG_CACHE_VERSION = "3";
 export const COUPONS = {
     WELCOME10: { percent: 10, min: 500, label: "10% off orders over ৳500" },
     ECO15: { percent: 15, min: 1000, label: "15% off orders over ৳1000" },
-    BETTER5: { percent: 5, min: 0, label: "5% off any order" }
+    BETTER5: { percent: 5, min: 0, label: "5% off any order" },
+    MISSIONHEXA: { percent: 10, min: 0, label: "10% off World Cup Offer" }
 };
 
 export const MEAL_INGREDIENT_KEYS = [

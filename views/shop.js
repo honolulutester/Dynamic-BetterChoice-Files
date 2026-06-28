@@ -26,6 +26,31 @@ export function renderShopView(container) {
             </div>
         </div>
 
+        <!-- FIFA WORLD CUP PROMO BANNER -->
+        <div class="world-cup-banner">
+            <div class="wc-banner-content">
+                <div class="wc-badge">🏆 FIFA World Cup Special</div>
+                <h3>${t("worldCupTitle")}</h3>
+                <p>${t("worldCupDesc")}</p>
+                <div class="wc-promo-row">
+                    <div class="wc-promo-code">
+                        <span>${t("promoCodeLabel")}:</span>
+                        <strong class="code-badge" id="copy-wc-code" title="Click to copy code">MissionHEXA</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="wc-illustration">
+                <div class="wc-ball-glow"></div>
+                <svg class="wc-ball-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/>
+                    <path d="M12 2a6 6 0 0 0-6 6v3.5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z"/>
+                </svg>
+            </div>
+        </div>
+
         <div class="page-header">
             <div class="page-title">
                 <h2>${t("catalogTitle")}</h2>
@@ -56,6 +81,14 @@ export function renderShopView(container) {
     document.getElementById("hero-browse-btn").addEventListener("click", (e) => {
         e.preventDefault();
         document.querySelector(".page-header").scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.getElementById("copy-wc-code")?.addEventListener("click", () => {
+        navigator.clipboard?.writeText("MissionHEXA").then(() => {
+            showNotification("Promo code 'MissionHEXA' copied!");
+        }).catch(() => {
+            showNotification("Promo code: MissionHEXA");
+        });
     });
 
     const productGrid = document.getElementById("shop-product-grid");
