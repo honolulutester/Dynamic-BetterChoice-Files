@@ -227,6 +227,12 @@ header {
     display: none;
     padding: 8px;
     color: var(--charcoal);
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .eco-wallet-badge {
@@ -262,6 +268,9 @@ header {
     color: var(--charcoal);
     cursor: pointer;
     transition: transform var(--transition-quick), color var(--transition-quick);
+}
+#cart-btn-label {
+    display: none;
 }
 .cart-icon-btn svg {
     transition: transform var(--transition-quick);
@@ -2475,7 +2484,7 @@ footer {
 }
 
 @media (max-width: 1300px) {
-    .mobile-menu-btn { display: block; }
+    .mobile-menu-btn { display: inline-flex; }
 
     .header-container {
         flex-wrap: wrap;
@@ -2506,8 +2515,55 @@ footer {
     header { position: sticky; }
     .header-container { position: relative; }
 
-    .header-account-btn span { display: none; }
-    .eco-wallet-badge { font-size: 11px; padding: 5px 10px; }
+    .header-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    
+    .header-actions > * {
+        flex: 1;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 0 6px !important;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        background: var(--white);
+        color: var(--charcoal);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        box-sizing: border-box;
+        text-align: center;
+        gap: 4px;
+        transition: var(--transition-quick);
+    }
+
+    .header-actions > *:hover {
+        background-color: var(--sand-light);
+        border-color: var(--gold);
+        transform: none;
+    }
+
+    .header-actions .cart-icon-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .header-actions .cart-icon-btn .cart-badge {
+        top: 2px;
+        right: 6px;
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+    }
+
+    .header-account-btn span { display: inline !important; }
+    #cart-btn-label { display: inline !important; }
+    .eco-wallet-badge { font-size: 11px; padding: 0 6px !important; }
 
     .page-header {
         flex-direction: column;
